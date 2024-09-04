@@ -43,7 +43,12 @@ func main() {
 		    * Acessando o servidor
 			* A função Dial conecta-se a um servidor
 	*/
-	conectando, erro := net.Dial("tcp", "127.0.0.1:8088")
+
+	var endereco_alvo string
+	fmt.Print("Digite o endereço alvo: ")
+	fmt.Scanln(&endereco_alvo)
+
+	conectando, erro := net.Dial("tcp", endereco_alvo)
 
 	if erro != nil {
 		fmt.Println("Erro ao se conectar ao servidor:", erro)
@@ -52,7 +57,7 @@ func main() {
 	//fechando a conexao
 	defer conectando.Close()
 
-	fmt.Println("Conectado ao servidor na porta 8088")
+	fmt.Println("Conectado ao servidor no endereço", endereco_alvo)
 
 	manipularConexao(conectando)
 
