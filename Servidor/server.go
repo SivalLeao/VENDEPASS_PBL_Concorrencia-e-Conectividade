@@ -6,6 +6,19 @@ import (
 	"strings"
 )
 
+func endereco_local() string {
+	conn, err := net.Dial("udp", "8.8.8.8:80")
+	if err != nil {
+		fmt.Println("Erro ao obter endereco local:", err)
+		return ""
+	}
+	defer conn.Close()
+
+	endr := strings.Split(conn.LocalAddr().String(), ":")[0]
+
+	return endr
+}
+
 func manipularConexao(cliente net.Conn) {
 	//fechar conexao no fim da operacao
 	defer cliente.Close()
@@ -56,7 +69,7 @@ func main() {
 		    *Criando o servidor
 			* A função Listen cria servidores
 	*/
-	server, erro := net.Listen("tcp", "127.0.0.1:8088")
+	server, erro := net.Listen("tcp", ":8088")
 
 	if erro != nil {
 		fmt.Println("Erro ao criar o servidor:", erro)
@@ -65,6 +78,9 @@ func main() {
 
 	//fecha a porta
 	defer server.Close()
+
+	endereco := endereco_local()
+	fmt.Println("Servidor funcionando no endereço ", endereco)
 	// se funcionar
 	fmt.Println("Servidor funcionando na porta 8088...")
 
