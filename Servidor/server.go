@@ -31,36 +31,37 @@ func manipularConexao(cliente net.Conn) {
 	ip := indetificador[0]
 	porta := indetificador[1]
 
-	fmt.Println("Usuario Ip:", ip)
-	fmt.Println("Usuario na porta:", porta)
+	fmt.Println("Usuario Ip:", ip, "porta:", porta)
 	//
 
-	//Lendo dados
-	//Buffer de 1 KB
-	buffer := make([]byte, 1024)
-	//Tamanho da mensagem recebida
-	tam_bytes, erro := cliente.Read(buffer)
+	for{
+		//Lendo dados
+		//Buffer de 1 KB
+		buffer := make([]byte, 1024)
+		//Tamanho da mensagem recebida
+		tam_bytes, erro := cliente.Read(buffer)
 
-	if erro != nil {
-		fmt.Println("Erro ao le os dados:", erro)
-		return
+		if erro != nil {
+			fmt.Println("Erro ao le os dados:", erro)
+			return
+		}
+
+		//Guardando a mensagem
+		mensagem := string(buffer[:tam_bytes])
+
+		//exibindo mensagem recebida
+		fmt.Println(mensagem)
+
+		//Tratando a mensagem para devolver (teste de retorno ao cliente)
+		mens_caps_lock := strings.ToUpper(mensagem)
+		_, erro = cliente.Write([]byte(mens_caps_lock))
+
+		if erro != nil {
+			fmt.Println("Erro ao enviar a mensagem:", erro)
+			return
+		}
+		fmt.Println("Mensagem enviada com sucesso!")
 	}
-
-	//Guardando a mensagem
-	mensagem := string(buffer[:tam_bytes])
-
-	//exibindo mensagem recebida
-	fmt.Println(mensagem)
-
-	//Tratando a mensagem para devolver (teste de retorno ao cliente)
-	mens_caps_lock := strings.ToUpper(mensagem)
-	_, erro = cliente.Write([]byte(mens_caps_lock))
-
-	if erro != nil {
-		fmt.Println("Erro ao enviar a mensagem:", erro)
-		return
-	}
-	fmt.Println("Mensagem enviada com sucesso!")
 
 }
 
@@ -80,7 +81,7 @@ func main() {
 	defer server.Close()
 
 	endereco := endereco_local()
-	fmt.Println("Servidor funcionando no endereço ", endereco)
+	fmt.Println("Servidor funcionando no endereço", endereco)
 	// se funcionar
 	fmt.Println("Servidor funcionando na porta 8088...")
 
