@@ -10,32 +10,39 @@ func manipularConexao(server net.Conn) {
 	defer server.Close()
 
 	//Manipulando dados [Ler/Escrever]
+	for {
+		// Enviar mensagem
+		var mens_envio string
+		fmt.Print("Digite a mensagem a ser enviada: ")
+		fmt.Scanln(&mens_envio)
+		_, erro := server.Write([]byte(mens_envio))
+		if erro != nil {
+			fmt.Println("Erro ao enviar mensagem:", erro)
+			return
+		}
+		
+		fmt.Println("Mensagem enviada")
 
-	// Enviar mensagem
-	mens_envio := "hello world!!!"
-	_, erro := server.Write([]byte(mens_envio))
-	if erro != nil {
-		fmt.Println("Erro ao enviar mensagem:", erro)
-		return
+		// Recebendo mensagem do server
+		// Buffer de 1K
+		buffer := make([]byte, 1024)
+		//Tamanho da mensagem recebida
+		tam_bytes, erro := server.Read(buffer)
+		if erro != nil {
+			fmt.Println("Erro ao le os dados:", erro)
+			return
+		}
+
+		// Guardando a mensagem
+		mensagem := string(buffer[:tam_bytes])
+
+		// Exibindo a mensagem
+		fmt.Println("Mensagem recebida:", mensagem)
+
+		if (mens_envio == "exit") {
+			return
+		}
 	}
-	
-	fmt.Println("Mensagem enviada")
-
-	// Recebendo mensagem do server
-	// Buffer de 1K
-	buffer := make([]byte, 1024)
-	//Tamanho da mensagem recebida
-	tam_bytes, erro := server.Read(buffer)
-	if erro != nil {
-		fmt.Println("Erro ao le os dados:", erro)
-		return
-	}
-
-	// Guardando a mensagem
-	mensagem := string(buffer[:tam_bytes])
-
-	// Exibindo a mensagem
-	fmt.Println("Mensagem recebida:", mensagem)
 }
 
 func main() {
