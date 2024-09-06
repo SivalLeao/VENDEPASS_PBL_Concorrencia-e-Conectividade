@@ -32,35 +32,64 @@ func manipularConexao(cliente net.Conn) {
 	porta := indetificador[1]
 
 	fmt.Println("Usuario Ip:", ip, "porta:", porta)
-	//
+
+	mens_env := "1" //Teste de envio de ID ao cliente
+	_, erro := cliente.Write([]byte(mens_env))
+	if erro != nil {
+		fmt.Println("Erro ao enviar mensagem:", erro)
+		return
+	}
+
+	buffer := make([]byte, 1024)
+	tam_bytes, erro := cliente.Read(buffer)
+	if erro != nil {
+		fmt.Println("Erro ao receber mensagem:", erro)
+		return
+	}
+	mens_receb := string(buffer[:tam_bytes])
+	if (mens_receb != "ID_ok"){
+		fmt.Println("Falha na identificação do cliente")
+		return
+	}
+
+	fmt.Println("Cliente identificado com sucesso!")
+
 
 	for{
 		//Lendo dados
 		//Buffer de 1 KB
-		buffer := make([]byte, 1024)
+		buffer = make([]byte, 1024)
 		//Tamanho da mensagem recebida
-		tam_bytes, erro := cliente.Read(buffer)
+		tam_bytes, erro = cliente.Read(buffer)
 
 		if erro != nil {
-			fmt.Println("Erro ao le os dados:", erro)
+			fmt.Println("Erro ao receber mensagem:", erro)
 			return
 		}
 
 		//Guardando a mensagem
-		mensagem := string(buffer[:tam_bytes])
+		mens_receb = string(buffer[:tam_bytes])
 
 		//exibindo mensagem recebida
-		fmt.Println(mensagem)
+		fmt.Println(mens_receb)
 
-		//Tratando a mensagem para devolver (teste de retorno ao cliente)
-		mens_caps_lock := strings.ToUpper(mensagem)
-		_, erro = cliente.Write([]byte(mens_caps_lock))
+		//Tratando a mensagem resposta
+		if (mens_receb == "exit") { 
+			mens_env = "exit_ok"
+		} else {
+			mens_env = "OK!"
+		}
+		_, erro = cliente.Write([]byte(mens_env))
 
 		if erro != nil {
 			fmt.Println("Erro ao enviar a mensagem:", erro)
 			return
 		}
 		fmt.Println("Mensagem enviada com sucesso!")
+		if (mens_receb == "exit") {
+			fmt.Println("Encerramento confirmado!")
+			return
+		}
 	}
 
 }
@@ -80,8 +109,8 @@ func main() {
 	//fecha a porta
 	defer server.Close()
 
-	endereco := endereco_local()
-	fmt.Println("Servidor funcionando no endereço", endereco)
+	// endereco := endereco_local()
+	// fmt.Println("Servidor funcionando no endereço", endereco)
 	// se funcionar
 	fmt.Println("Servidor funcionando na porta 8088...")
 
