@@ -4,9 +4,39 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"os"
+	"os/exec"
+	"runtime"
 )
 
-func manipularConexao(server net.Conn) {
+func lipar_terminal() {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+		case "windows":
+			cmd = exec.Command("cmd", "/c", "cls")
+		default: //linux e mac
+			cmd = exec.Command("clear")
+	}
+
+	cmd.Stdout = os.Stdout
+	erro := cmd.Run()
+	if erro != nil {
+		fmt.Println("Erro ao limpar o terminal:", erro)
+		return
+	}
+}
+
+func cabecalho(endereco string) {
+	lipar_terminal()
+	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+	fmt.Println("|\033[32m             VENDEPASS: Venda de Passagens         	 \033[0m|")
+	fmt.Println("|--------------------------------------------------------|")
+	fmt.Println("|\033[34m           Conectado:", endereco + "                \033[0m|")
+	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n")
+}
+
+func manipularConexao(server net.Conn, endereco string) {
 	//fechar a conexao no fim da operacao
 	defer server.Close()
 
@@ -35,6 +65,7 @@ func manipularConexao(server net.Conn) {
 
 	//Manipulando dados [Ler/Escrever]
 	for {
+
 		// Enviar mensagem
 		fmt.Print("Digite a mensagem a ser enviada: ")
 		fmt.Scanln(&mens_env)
@@ -44,7 +75,7 @@ func manipularConexao(server net.Conn) {
 			return
 		}
 		
-		fmt.Println("Mensagem enviada")
+		fmt.Println("\nMensagem enviada\n")
 
 		// Recebendo mensagem do server
 		// Buffer de 1K
@@ -60,7 +91,8 @@ func manipularConexao(server net.Conn) {
 		mens_receb = string(buffer[:tam_bytes])
 
 		// Exibindo a mensagem
-		fmt.Println("Mensagem recebida:", mens_receb)
+		fmt.Println("Mensagem recebida:", mens_receb +"\n")
+		fmt.Println("=============================================\n")
 
 		if (mens_env == "exit" && mens_receb == "exit_ok") {
 			return
@@ -69,6 +101,7 @@ func manipularConexao(server net.Conn) {
 }
 
 func main() {
+	lipar_terminal()
 	/*
 		    * Acessando o servidor
 			* A função Dial conecta-se a um servidor
@@ -87,8 +120,9 @@ func main() {
 	//fechando a conexao
 	defer conexao.Close()
 
-	fmt.Println("Conectado ao servidor no endereço", endereco_alvo)
+	cabecalho(endereco_alvo)
+	//fmt.Println("Conectado ao servidor no endereço", endereco_alvo)
 
-	manipularConexao(conexao)
+	manipularConexao(conexao, endereco_alvo)
 
 }

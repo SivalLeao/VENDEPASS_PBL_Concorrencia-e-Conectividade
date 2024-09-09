@@ -3,8 +3,36 @@ package main
 import (
 	"fmt"
 	"net"
+	"os"
+	"os/exec"
+	"runtime"
 	"strings"
 )
+
+func lipar_terminal() {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+		case "windows":
+			cmd = exec.Command("cmd", "/c", "cls")
+		default: //linux e mac
+			cmd = exec.Command("clear")
+	}
+
+	cmd.Stdout = os.Stdout
+	erro := cmd.Run()
+	if erro != nil {
+		fmt.Println("Erro ao limpar o terminal:", erro)
+		return
+	}
+}
+
+func cabecalho(endereco string, porta string) {
+	lipar_terminal()
+	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+	fmt.Println("|  Servidor funcionando no endereço:\033[32m", endereco+":"+porta + "  \033[0m|")
+	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n")
+}
 
 func endereco_local() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
@@ -19,7 +47,7 @@ func endereco_local() string {
 	return endr
 }
 
-func manipularConexao(cliente net.Conn) {
+func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
 	//fechar conexao no fim da operacao
 	defer cliente.Close()
 
@@ -30,8 +58,10 @@ func manipularConexao(cliente net.Conn) {
 	indetificador := strings.Split(id_porta, ":")
 	ip := indetificador[0]
 	porta := indetificador[1]
-
-	fmt.Println("Usuario Ip:", ip, "porta:", porta)
+	
+	cabecalho(ip_server, porta_server)
+	fmt.Println("Conexão estabelecida com o cliente!")
+	fmt.Println("Ip:\033[34m", ip, "\033[0mPorta:\033[34m", porta + "\033[0m")
 
 	mens_env := "1" //Teste de envio de ID ao cliente
 	_, erro := cliente.Write([]byte(mens_env))
@@ -43,6 +73,7 @@ func manipularConexao(cliente net.Conn) {
 	buffer := make([]byte, 1024)
 	tam_bytes, erro := cliente.Read(buffer)
 	if erro != nil {
+		cabecalho(ip_server, porta_server)
 		fmt.Println("Erro ao receber mensagem:", erro)
 		return
 	}
@@ -63,6 +94,7 @@ func manipularConexao(cliente net.Conn) {
 		tam_bytes, erro = cliente.Read(buffer)
 
 		if erro != nil {
+			cabecalho(ip_server, porta_server)
 			fmt.Println("Erro ao receber mensagem:", erro)
 			return
 		}
@@ -70,8 +102,11 @@ func manipularConexao(cliente net.Conn) {
 		//Guardando a mensagem
 		mens_receb = string(buffer[:tam_bytes])
 
+		cabecalho(ip_server, porta_server)
 		//exibindo mensagem recebida
-		fmt.Println(mens_receb)
+		fmt.Println("Mensagem recebida!")
+		fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta + "\033[0m")
+		fmt.Println("\n\033[33m",mens_receb +"\033[0m\n")
 
 		//Tratando a mensagem resposta
 		if (mens_receb == "exit") { 
@@ -85,7 +120,7 @@ func manipularConexao(cliente net.Conn) {
 			fmt.Println("Erro ao enviar a mensagem:", erro)
 			return
 		}
-		fmt.Println("Mensagem enviada com sucesso!")
+		fmt.Println("Resposta enviada com sucesso!")
 		if (mens_receb == "exit") {
 			fmt.Println("Encerramento confirmado!")
 			return
@@ -109,10 +144,13 @@ func main() {
 	//fecha a porta
 	defer server.Close()
 
-	// endereco := endereco_local()
-	// fmt.Println("Servidor funcionando no endereço", endereco)
+	endereco := endereco_local()
+	porta := "8088"
+	
 	// se funcionar
-	fmt.Println("Servidor funcionando na porta 8088...")
+	cabecalho(endereco, porta)
+
+	//fmt.Println("Servidor funcionando na porta:", porta)
 
 	//Loop infinito do servidor
 	for {
@@ -122,6 +160,6 @@ func main() {
 			fmt.Println("Erro ao aceitar conexão:", erro)
 			continue
 		}
-		go manipularConexao(conexao)
+		go manipularConexao(conexao, endereco, porta)
 	}
 }
