@@ -3,10 +3,10 @@ package main
 import (
 	"fmt"
 	"net"
-	"strconv"
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 )
 
 func lipar_terminal() {
@@ -54,6 +54,9 @@ func manipularConexao(server net.Conn, endereco string) {
 		fmt.Println("Erro ao identificar o cliente")
 		return
 	}
+
+	id := mens_receb
+
 	mens_env := "ID_ok"
 	_, erro = server.Write([]byte(mens_env))
 	if erro != nil {
@@ -63,12 +66,15 @@ func manipularConexao(server net.Conn, endereco string) {
 
 	fmt.Println("Identificação concluída")
 
+	var scan string
+
 	//Manipulando dados [Ler/Escrever]
 	for {
 
 		// Enviar mensagem
 		fmt.Print("Digite a mensagem a ser enviada: ")
-		fmt.Scanln(&mens_env)
+		fmt.Scanln(&scan)
+		mens_env = id + ":" + scan
 		_, erro = server.Write([]byte(mens_env))
 		if erro != nil {
 			fmt.Println("Erro ao enviar mensagem:", erro)
@@ -94,7 +100,7 @@ func manipularConexao(server net.Conn, endereco string) {
 		fmt.Println("Mensagem recebida:", mens_receb +"\n")
 		fmt.Println("=============================================\n")
 
-		if (mens_env == "exit" && mens_receb == "exit_ok") {
+		if (scan == "exit" && mens_receb == "exit_ok") {
 			return
 		}
 	}

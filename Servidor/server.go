@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"strconv"
 	"strings"
 )
 
@@ -47,7 +48,7 @@ func endereco_local() string {
 	return endr
 }
 
-func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
+func manipularConexao(cliente net.Conn, ip_server string, porta_server string, id *int, cliente_id map[string]int, rotas map[string]int) {
 	//fechar conexao no fim da operacao
 	defer cliente.Close()
 
@@ -58,12 +59,23 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
 	indetificador := strings.Split(id_porta, ":")
 	ip := indetificador[0]
 	porta := indetificador[1]
+
+	//Verificando se o cliente já foi identificado
+	id_antigo, existe := cliente_id[ip]
 	
 	cabecalho(ip_server, porta_server)
 	fmt.Println("Conexão estabelecida com o cliente!")
 	fmt.Println("Ip:\033[34m", ip, "\033[0mPorta:\033[34m", porta + "\033[0m")
 
-	mens_env := "1" //Teste de envio de ID ao cliente
+	var mens_env string
+	var comando []string
+
+	if existe {
+		mens_env = strconv.Itoa(id_antigo)
+	} else {
+		mens_env = strconv.Itoa(*id)
+	}
+
 	_, erro := cliente.Write([]byte(mens_env))
 	if erro != nil {
 		fmt.Println("Erro ao enviar mensagem:", erro)
@@ -81,6 +93,14 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
 	if (mens_receb != "ID_ok"){
 		fmt.Println("Falha na identificação do cliente")
 		return
+	}
+
+	if existe {
+		fmt.Println("Cliente", ip, "ID:", id_antigo, "reconectado!")
+	} else {
+		cliente_id[ip] = *id
+		*id++
+		fmt.Println("Cliente", ip, "ID:", cliente_id[ip], "registrado!")
 	}
 
 	fmt.Println("Cliente identificado com sucesso!")
@@ -108,11 +128,40 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
 		fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta + "\033[0m")
 		fmt.Println("\n\033[33m",mens_receb +"\033[0m\n")
 
-		//Tratando a mensagem resposta
-		if (mens_receb == "exit") { 
-			mens_env = "exit_ok"
+		comando = strings.Split(mens_receb, ":")
+		if len(comando) != 2 {
+			fmt.Println("Comando inválido recebido!")
+			mens_env = "Invalido"
+			_, erro = cliente.Write([]byte(mens_env))
+
+			if erro != nil {
+				fmt.Println("Erro ao enviar a mensagem:", erro)
+				return
+			}
+			fmt.Println("Resposta enviada com sucesso!")
+			continue
+		}
+		id_receb, _ := strconv.Atoi(comando[0])
+
+		pertence, existe := rotas[comando[1]]
+
+		if !existe {
+			fmt.Println("Rota não encontrada!")
+			mens_env = "Rota não encontrada!"
 		} else {
-			mens_env = "OK!"
+			if pertence == 0 {
+				fmt.Println("Rota", comando[1], "disponível!")
+				mens_env = "Rota comprada!"
+				rotas[comando[1]] = id_receb
+			} else {
+				fmt.Println("Rota", comando[1], "indisponível!")
+				mens_env = "Rota indisponível!"
+			}
+		}
+
+		//Tratando a mensagem resposta
+		if (comando[1] == "exit") { 
+			mens_env = "exit_ok"
 		}
 		_, erro = cliente.Write([]byte(mens_env))
 
@@ -121,7 +170,8 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string) {
 			return
 		}
 		fmt.Println("Resposta enviada com sucesso!")
-		if (mens_receb == "exit") {
+
+		if (comando[1] == "exit") {
 			fmt.Println("Encerramento confirmado!")
 			return
 		}
@@ -150,7 +200,10 @@ func main() {
 	// se funcionar
 	cabecalho(endereco, porta)
 
-	//fmt.Println("Servidor funcionando na porta:", porta)
+	var id *int = new(int)
+	*id = 1
+	cliente_id := make(map[string]int)
+	rotas := map[string]int{"Salvador": 0, "Feira de Santana": 0, "Xique-Xique": 0, "Aracaju": 0}
 
 	//Loop infinito do servidor
 	for {
@@ -160,6 +213,6 @@ func main() {
 			fmt.Println("Erro ao aceitar conexão:", erro)
 			continue
 		}
-		go manipularConexao(conexao, endereco, porta)
+		go manipularConexao(conexao, endereco, porta, id, cliente_id, rotas)
 	}
 }
