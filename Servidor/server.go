@@ -48,7 +48,27 @@ func endereco_local() string {
 	return endr
 }
 
-func manipularConexao(cliente net.Conn, ip_server string, porta_server string, id *int, cliente_id map[string]int, rotas map[string]int) {
+func enviar_mensagem(cliente net.Conn, mensagem string) {
+	_, erro := cliente.Write([]byte(mensagem))
+	if erro != nil {
+		fmt.Println("Erro ao enviar mensagem:", erro)
+		return
+	}
+}
+
+func receber_mensagem(cliente net.Conn) string {
+	buffer := make([]byte, 1024)
+	tam_bytes, erro := cliente.Read(buffer)
+	if erro != nil {
+		fmt.Println("Erro ao receber mensagem:", erro)
+		return ""
+	}
+
+	mensagem := string(buffer[:tam_bytes])
+	return mensagem
+}
+
+func manipularConexao(cliente net.Conn, ip_server string, porta_server string, id *int, cliente_id map[string]int, rotas map[string]int, cliente_rotas map[int][]string) {
 	//fechar conexao no fim da operacao
 	defer cliente.Close()
 
@@ -76,20 +96,9 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 		mens_env = strconv.Itoa(*id)
 	}
 
-	_, erro := cliente.Write([]byte(mens_env))
-	if erro != nil {
-		fmt.Println("Erro ao enviar mensagem:", erro)
-		return
-	}
+	enviar_mensagem(cliente, mens_env)
 
-	buffer := make([]byte, 1024)
-	tam_bytes, erro := cliente.Read(buffer)
-	if erro != nil {
-		cabecalho(ip_server, porta_server)
-		fmt.Println("Erro ao receber mensagem:", erro)
-		return
-	}
-	mens_receb := string(buffer[:tam_bytes])
+	mens_receb := receber_mensagem(cliente)
 	if (mens_receb != "ID_ok"){
 		fmt.Println("Falha na identificação do cliente")
 		return
@@ -107,20 +116,9 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 
 
 	for{
-		//Lendo dados
-		//Buffer de 1 KB
-		buffer = make([]byte, 1024)
-		//Tamanho da mensagem recebida
-		tam_bytes, erro = cliente.Read(buffer)
-
-		if erro != nil {
-			cabecalho(ip_server, porta_server)
-			fmt.Println("Erro ao receber mensagem:", erro)
-			return
-		}
 
 		//Guardando a mensagem
-		mens_receb = string(buffer[:tam_bytes])
+		mens_receb = receber_mensagem(cliente)
 
 		cabecalho(ip_server, porta_server)
 		//exibindo mensagem recebida
@@ -132,13 +130,7 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 		if len(comando) != 2 {
 			fmt.Println("Comando inválido recebido!")
 			mens_env = "Invalido"
-			_, erro = cliente.Write([]byte(mens_env))
-
-			if erro != nil {
-				fmt.Println("Erro ao enviar a mensagem:", erro)
-				return
-			}
-			fmt.Println("Resposta enviada com sucesso!")
+			enviar_mensagem(cliente, mens_env)
 			continue
 		}
 		id_receb, _ := strconv.Atoi(comando[0])
@@ -163,13 +155,8 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 		if (comando[1] == "exit") { 
 			mens_env = "exit_ok"
 		}
-		_, erro = cliente.Write([]byte(mens_env))
 
-		if erro != nil {
-			fmt.Println("Erro ao enviar a mensagem:", erro)
-			return
-		}
-		fmt.Println("Resposta enviada com sucesso!")
+		enviar_mensagem(cliente, mens_env)
 
 		if (comando[1] == "exit") {
 			fmt.Println("Encerramento confirmado!")
@@ -204,6 +191,7 @@ func main() {
 	*id = 1
 	cliente_id := make(map[string]int)
 	rotas := map[string]int{"Salvador": 0, "Feira de Santana": 0, "Xique-Xique": 0, "Aracaju": 0}
+	cliente_rotas := make(map[int][]string)
 
 	//Loop infinito do servidor
 	for {
@@ -213,6 +201,6 @@ func main() {
 			fmt.Println("Erro ao aceitar conexão:", erro)
 			continue
 		}
-		go manipularConexao(conexao, endereco, porta, id, cliente_id, rotas)
+		go manipularConexao(conexao, endereco, porta, id, cliente_id, rotas, cliente_rotas)
 	}
 }
