@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net"
 	"os"
@@ -55,9 +56,26 @@ func endereco_local() (string, string){
 	return endr, porta
 }
 
+func enviar(cliente net.Conn, dado []byte) error{
+	_, erro := cliente.Write(dado)
+	if erro != nil {
+		return erro
+	}
+	return nil
+}
+
+func receber(cliente net.Conn) ([]byte, error){
+	buffer := make([]byte, 1024)
+	tam_bytes, erro := cliente.Read(buffer)
+	if erro != nil {
+		return nil, erro
+	}
+	return buffer[:tam_bytes], nil
+}
+
 //Função para enviar mensagens
 func enviar_mensagem(cliente net.Conn, mensagem string) {
-	_, erro := cliente.Write([]byte(mensagem))
+	erro := enviar(cliente, []byte(mensagem))
 	if erro != nil {
 		fmt.Println("Erro ao enviar mensagem:", erro)
 		return
@@ -66,15 +84,59 @@ func enviar_mensagem(cliente net.Conn, mensagem string) {
 
 //Função para receber mensagens
 func receber_mensagem(cliente net.Conn) string {
-	buffer := make([]byte, 1024)
-	tam_bytes, erro := cliente.Read(buffer)
+	buffer, erro := receber(cliente)
 	if erro != nil {
 		fmt.Println("Erro ao receber mensagem:", erro)
 		return ""
 	}
 
-	mensagem := string(buffer[:tam_bytes])
-	return mensagem
+	return string(buffer)
+}
+
+//Função para serializar dados
+func serializar_dados[Tipo any](dados Tipo) ([]byte, error){
+	jsonData, erro := json.Marshal(dados)
+	if erro != nil {
+		return nil, erro
+	}
+	return jsonData, nil
+}
+
+//Função para desserializar dados
+func desserializar_dados[Tipo any](jsonData []byte) (Tipo, error){
+	var dados Tipo
+	erro := json.Unmarshal(jsonData, &dados)
+	if erro != nil {
+		return dados, erro
+	}
+	return dados, nil
+}
+
+//Função para enviar dados de um tipo desconhecido (como um slice ou um map)
+func enviar_dados[Tipo any](cliente net.Conn, dados Tipo) error {
+	jsonData, erro := serializar_dados(dados)
+	if erro != nil {
+		return erro
+	}
+	erro = enviar(cliente, jsonData)
+	if erro != nil {
+		return erro
+	}
+	return nil
+}
+
+//Função para receber dados de um tipo desconhecido (como um slice ou um map)
+func receber_dados[Tipo any](cliente net.Conn) (Tipo, error) {
+	buffer, erro := receber(cliente)
+	var dados Tipo
+	if erro != nil {
+		return dados, erro
+	}
+	dados, erro = desserializar_dados[Tipo](buffer)
+	if erro != nil {
+		return dados, erro
+	}
+	return dados, nil
 }
 
 //Função para manipular a conexão com o cliente
