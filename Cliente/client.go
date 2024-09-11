@@ -9,6 +9,7 @@ import (
 	"strconv"
 )
 
+//Função para limpar o terminal
 func lipar_terminal() {
 	var cmd *exec.Cmd
 
@@ -27,6 +28,7 @@ func lipar_terminal() {
 	}
 }
 
+//Função para exibir o cabeçalho com o endereço do servidor para conexão
 func cabecalho(endereco string) {
 	lipar_terminal()
 	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
@@ -36,6 +38,7 @@ func cabecalho(endereco string) {
 	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n")
 }
 
+//Função para enviar mensagens
 func enviar_mensagem(server net.Conn, mensagem string) {
 	_, erro := server.Write([]byte(mensagem))
 	if erro != nil {
@@ -44,6 +47,7 @@ func enviar_mensagem(server net.Conn, mensagem string) {
 	}
 }
 
+//Função para receber mensagens
 func receber_mensagem(server net.Conn) string {
 	buffer := make([]byte, 1024)
 	tam_bytes, erro := server.Read(buffer)
@@ -55,11 +59,12 @@ func receber_mensagem(server net.Conn) string {
 	return string(buffer[:tam_bytes])
 }
 
+//Função para manipular a conexão com o servidor
 func manipularConexao(server net.Conn, endereco string) {
 	//fechar a conexao no fim da operacao
 	defer server.Close()
 
-	mens_receb := receber_mensagem(server)
+	mens_receb := receber_mensagem(server) // Recebe a mensagem de identificação do cliente
 	_, erro := strconv.Atoi(mens_receb) // Testa se a mensagem recebida pode ser convertida em um inteiro
 
 	if (erro != nil){ // Se a mensagem recebida for um inteiro, o cliente foi identificado
@@ -67,23 +72,23 @@ func manipularConexao(server net.Conn, endereco string) {
 		return
 	}
 
-	id := mens_receb
+	id := mens_receb // Guarda o id que foi recebido e atribuído pelo servidor
 
-	mens_env := "ID_ok"
-	enviar_mensagem(server, mens_env)
+	mens_env := "ID_ok" // Envia a mensagem de confirmação de identificação
+	enviar_mensagem(server, mens_env) // Envia a mensagem de confirmação de identificação
 
 	fmt.Println("Identificação concluída")
 
-	var scan string
+	var scan string // Variável para armazenar os comandos digitados pelo usuário
 
-	//Manipulando dados [Ler/Escrever]
+	// Loop para enviar e receber mensagens
 	for {
 
 		// Enviar mensagem
 		fmt.Print("Digite a mensagem a ser enviada: ")
-		fmt.Scanln(&scan)
-		mens_env = id + ":" + scan
-		enviar_mensagem(server, mens_env)
+		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
+		mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
+		enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
 		
 		fmt.Println("\nMensagem enviada\n")
 
@@ -95,7 +100,7 @@ func manipularConexao(server net.Conn, endereco string) {
 		fmt.Println("Mensagem recebida:", mens_receb +"\n")
 		fmt.Println("=============================================\n")
 
-		if (scan == "exit" && mens_receb == "exit_ok") {
+		if (scan == "exit" && mens_receb == "exit_ok") { // Se o comando digitado for "exit" e a mensagem recebida for "exit_ok", encerra a conexão
 			return
 		}
 	}
@@ -110,9 +115,9 @@ func main() {
 
 	var endereco_alvo string
 	fmt.Print("Digite o endereço alvo: ")
-	fmt.Scanln(&endereco_alvo)
+	fmt.Scanln(&endereco_alvo) // Recebe o endereço do servidor a que se deseja conectar
 
-	conexao, erro := net.Dial("tcp", endereco_alvo)
+	conexao, erro := net.Dial("tcp", endereco_alvo) // Conecta-se ao servidor
 
 	if erro != nil {
 		fmt.Println("Erro ao se conectar ao servidor:", erro)
@@ -124,6 +129,6 @@ func main() {
 	cabecalho(endereco_alvo)
 	//fmt.Println("Conectado ao servidor no endereço", endereco_alvo)
 
-	manipularConexao(conexao, endereco_alvo)
+	manipularConexao(conexao, endereco_alvo) // Manipula a conexão com o servidor
 
 }
