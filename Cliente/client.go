@@ -31,11 +31,11 @@ func lipar_terminal() {
 //Função para exibir o cabeçalho com o endereço do servidor para conexão
 func cabecalho(endereco string) {
 	lipar_terminal()
-	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+	fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|\033[32m             VENDEPASS: Venda de Passagens         	 \033[0m|")
 	fmt.Println("|--------------------------------------------------------|")
 	fmt.Println("|\033[34m           Conectado:", endereco + "                \033[0m|")
-	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n")
+	fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 }
 
 //Função para enviar mensagens
@@ -85,7 +85,58 @@ func manipularConexao(server net.Conn, endereco string) {
 	for {
 
 		// Enviar mensagem
-		fmt.Print("Digite a mensagem a ser enviada: ")
+		//fmt.Print("Digite a mensagem a ser enviada: ")
+		fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+		fmt.Println("                            MENU")
+		fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
+
+		fmt.Println("1 - Comprar passagem")
+		fmt.Println("2 - Consultar passagem")
+		fmt.Print("3 - Sair\n\n")
+		fmt.Print("==========================================================\n\n")
+
+
+		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
+		
+		switch scan {
+			case "1":
+				cabecalho(endereco)
+				fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+				fmt.Println("                    Comprar passagem")
+				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
+
+				fmt.Println("Rotas disponiveis:")
+				// Solicitar rotas disponíveis do servidor
+				rotas := map[string]int{"Salvador": 1, "Feira de Santana": 1, "Xique-Xique": 0, "Aracaju": 1, "Maceió": 0, "Recife": 0}
+				
+				var matriz[3][2]string
+				for local, vaga := range rotas {
+					for i := 0; i < 3; i++ {
+						for j := 0; j < 2; j++ {
+							if vaga == 1 {
+								matriz[i][j] = local
+							}
+							if vaga == 0 {
+								matriz[i][j] = "\033[34m"+local+"\033[0m"
+							}
+							
+						}
+					}
+				}
+
+				//var lista_rotas = [6]string{"\033[34mRota 1\033[0m", " Rota 2", "Rota 3", "Rota 4", "Rota 5", "Rota 6"} 
+
+				fmt.Println("----------------------------------------------------------")
+				fmt.Println(matriz[0][0], matriz[0][1])
+				fmt.Println(matriz[1][0], matriz[1][1])
+				fmt.Print("----------------------------------------------------------\n\n")
+
+				fmt.Print("Digite a rota desejada: ")
+				fmt.Scanln(&scan)
+				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
+				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+		}
+		
 		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
 		mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 		enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor

@@ -30,25 +30,29 @@ func lipar_terminal() {
 }
 
 //Função para exibir o cabeçalho com o endereço do servidor para conexão
-func cabecalho(endereco string, porta string) {
+func cabecalho() {
 	lipar_terminal()
+	endereco, porta := endereco_local()
 	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|  Servidor funcionando no endereço:\033[32m", endereco+":"+porta + "  \033[0m|")
-	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n")
+	fmt.Print("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 }
 
 //Função para obter o endereço IP local
-func endereco_local() string {
+func endereco_local() (string, string){
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		fmt.Println("Erro ao obter endereco local:", err)
-		return ""
+		return "", ""
 	}
 	defer conn.Close()
 
 	endr := strings.Split(conn.LocalAddr().String(), ":")[0]
 
-	return endr
+	//endereco := endereco_local() //Obtendo o endereço IP local
+	porta := "8088"
+
+	return endr, porta
 }
 
 //Função para enviar mensagens
@@ -74,7 +78,7 @@ func receber_mensagem(cliente net.Conn) string {
 }
 
 //Função para manipular a conexão com o cliente
-func manipularConexao(cliente net.Conn, ip_server string, porta_server string, id *int, cliente_id map[string]int, rotas map[string]int, cliente_rotas map[int][]string) {
+func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rotas map[string]int, cliente_rotas map[int][]string) {
 	//fechar conexao no fim da operacao
 	defer cliente.Close()
 
@@ -89,7 +93,7 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 	//Verificando se o cliente já foi identificado
 	id_antigo, existe := cliente_id[ip] //Armazena o ID do cliente caso ele já exista no dicionário
 	
-	cabecalho(ip_server, porta_server)
+	cabecalho()
 	fmt.Println("Conexão estabelecida com o cliente!")
 	fmt.Println("Ip:\033[34m", ip, "\033[0mPorta:\033[34m", porta + "\033[0m")
 
@@ -127,7 +131,7 @@ func manipularConexao(cliente net.Conn, ip_server string, porta_server string, i
 		//Guardando a mensagem
 		mens_receb = receber_mensagem(cliente) //Recebe a mensagem do cliente com seus comandos
 
-		cabecalho(ip_server, porta_server)
+		cabecalho()
 		//exibindo mensagem recebida
 		fmt.Println("Mensagem recebida!")
 		fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta + "\033[0m")
@@ -180,7 +184,10 @@ func main() {
 		    *Criando o servidor
 			* A função Listen cria servidores
 	*/
-	server, erro := net.Listen("tcp", ":8088")
+
+	_, porta := endereco_local() //Obtendo o endereço IP local
+
+	server, erro := net.Listen("tcp", ":"+porta)
 
 	if erro != nil {
 		fmt.Println("Erro ao criar o servidor:", erro)
@@ -190,11 +197,11 @@ func main() {
 	//fecha a porta
 	defer server.Close()
 
-	endereco := endereco_local() //Obtendo o endereço IP local
-	porta := "8088"
+	//endereco := endereco_local() //Obtendo o endereço IP local
+	//porta := "8088"
 	
 	// se funcionar
-	cabecalho(endereco, porta) //Exibindo o endereço local para conexão
+	cabecalho() //Exibindo o endereço local para conexão
 
 	//Variáveis do servidor
 	var id *int = new(int) //Ponteiro de ID que será atualizado conforme clientes se conectarem
@@ -217,6 +224,6 @@ func main() {
 			continue
 		}
 
-		go manipularConexao(conexao, endereco, porta, id, cliente_id, rotas, cliente_rotas) //Manipula a conexão em uma nova thread
+		go manipularConexao(conexao, id, cliente_id, rotas, cliente_rotas) //Manipula a conexão em uma nova thread
 	}
 }
