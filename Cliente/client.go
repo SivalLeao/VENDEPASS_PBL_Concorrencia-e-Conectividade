@@ -168,30 +168,56 @@ func manipularConexao(server net.Conn, endereco string) {
 				fmt.Println("                    Comprar passagem")
 				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 
-				fmt.Println("Rotas disponiveis:")
 				// Solicitar rotas disponíveis do servidor
 				rotas := map[string]int{"Salvador": 1, "Feira de Santana": 1, "Xique-Xique": 0, "Aracaju": 1, "Maceió": 0, "Recife": 0}
 				
-				var matriz[3][2]string
-				for local, vaga := range rotas {
-					for i := 0; i < 3; i++ {
-						for j := 0; j < 2; j++ {
-							if vaga == 1 {
-								matriz[i][j] = local
+				enviar_mensagem(server, "rotas")
+				
+				// Lista de rotas (apenas nome)
+				var rotas_list []string
+
+				// Preenchendo a lista de rotas
+				for chave := range rotas {
+					rotas_list = append(rotas_list, chave)
+				}
+
+				// Tamanho do mapa de rotas
+				tamanho := len(rotas)
+				var colunas = 3  				// Quantidade de colunas
+				var linhas = tamanho / colunas 	// Quantidade de linhas se for um numero multiplo de colunas 
+				var resto = tamanho % colunas 	// Resto da divisão se for maior que zero o numero nao é multiplo de colunas
+				if resto > 0 {
+					linhas += (colunas - resto) // Se o resto for maior que zero, adiciona mais elementos para completar a ultima linha
+				}
+
+				// Criando a matriz de rotas para exibição
+				var matriz = make([][]string, linhas)
+				k := 0
+				for  i := 0; i < linhas; i++ {
+					matriz[i] = make([]string, colunas)
+					for j := 0; j < colunas; j++ {
+						if k >= tamanho {
+							matriz[i][j] = ""			
+						} else {
+							if rotas[rotas_list[k]] == 1 {
+								matriz[i][j] = "\033[31m" + rotas_list[k] + "\033[0m"
+							} else {
+								matriz[i][j] = rotas_list[k]
 							}
-							if vaga == 0 {
-								matriz[i][j] = "\033[34m"+local+"\033[0m"
-							}
-							
+							k++
 						}
 					}
 				}
 
-				//var lista_rotas = [6]string{"\033[34mRota 1\033[0m", " Rota 2", "Rota 3", "Rota 4", "Rota 5", "Rota 6"} 
-
+				// Exibindo a matriz de rotas
+				fmt.Println("Rotas disponiveis:")
 				fmt.Println("----------------------------------------------------------")
-				fmt.Println(matriz[0][0], matriz[0][1])
-				fmt.Println(matriz[1][0], matriz[1][1])
+				for i := 0; i < linhas; i++ {
+					for j := 0; j < colunas; j++ {
+						fmt.Print(matriz[i][j], " - ")
+					}
+					fmt.Println()
+				}
 				fmt.Print("----------------------------------------------------------\n\n")
 
 				fmt.Print("Digite a rota desejada: ")
