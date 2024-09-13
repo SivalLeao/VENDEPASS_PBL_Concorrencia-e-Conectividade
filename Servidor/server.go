@@ -236,6 +236,10 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 					pertence, existe := rotas[operacao] //Verifica se a rota existe
 					if (!existe || pertence != 0) { //Se a rota não existe ou já foi comprada, exibe uma mensagem
 						fmt.Println("Rota inválida!")
+						fmt.Println("mensagem recebida:", mens_receb)
+						fmt.Println("Comando[1]", comando[1])
+						fmt.Println("Comando[0]", comando[0])
+						fmt.Println("operacao", operacao)
 						mens_env = "Rota inválida!"
 						enviar_mensagem(cliente, mens_env)
 						continue

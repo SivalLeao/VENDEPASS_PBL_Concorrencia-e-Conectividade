@@ -9,6 +9,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"bufio"
+	"time"
 )
 
 //Função para limpar o terminal
@@ -244,10 +246,17 @@ func manipularConexao(server net.Conn, endereco string) {
 				fmt.Print("Digite 3 para voltar ao menu\n\n")
 				fmt.Print("==========================================================\n\n")
 				
-				fmt.Scanln(&scan)
+				//.Scanln(&scan)
+				var scan string
+				scan, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+				
+				fmt.Println("Scan:", scan)
+				
 				cabecalho(endereco)
 				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+				fmt.Println("Mensagem enviada:", mens_env)
+				time.Sleep(15 * time.Second)
 				if scan != "3"{
 					mens_receb = receber_mensagem(server)
 					if mens_receb == "ok"{
