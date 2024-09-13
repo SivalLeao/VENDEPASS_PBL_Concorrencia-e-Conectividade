@@ -8,6 +8,7 @@ import (
 	"os/exec"
 	"runtime"
 	"strconv"
+	"strings"
 )
 
 //Função para limpar o terminal
@@ -35,7 +36,7 @@ func cabecalho(endereco string) {
 	fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|\033[32m             VENDEPASS: Venda de Passagens         	 \033[0m|")
 	fmt.Println("|--------------------------------------------------------|")
-	fmt.Println("|\033[34m           Conectado:", endereco + "                \033[0m|")
+	fmt.Println("|\033[34m            Conectado:", endereco + "                \033[0m|")
 	fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 }
 
@@ -140,7 +141,7 @@ func manipularConexao(server net.Conn, endereco string) {
 	mens_env := "ID_ok" // Envia a mensagem de confirmação de identificação
 	enviar_mensagem(server, mens_env) // Envia a mensagem de confirmação de identificação
 
-	fmt.Println("Identificação concluída")
+	fmt.Println(strings.TrimLeft("                 Identificação concluída", "\n\n"))
 
 	var scan string // Variável para armazenar os comandos digitados pelo usuário
 	var rotas_compradas []string // Lista de rotas compradas pelo cliente
@@ -169,20 +170,27 @@ func manipularConexao(server net.Conn, endereco string) {
 		switch scan {
 			case "1":
 				cabecalho(endereco)
-				fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+				fmt.Println("——————————————————————————————————————————————————————————")
 				fmt.Println("                    Comprar passagem")
-				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
+				fmt.Print("——————————————————————————————————————————————————————————\n\n")
 
 				// Solicitar rotas disponíveis do servidor
 				rotas_disponiveis, erro = receber_dados[map[string]int](server)
 				
 				// Lista de rotas (apenas nome)
 				var rotas_list []string
-
+				var tamanho_palavra = -1
 				// Preenchendo a lista de rotas
 				for chave := range rotas_disponiveis {
 					rotas_list = append(rotas_list, chave)
 				}
+
+				for k := range rotas_list {
+					if len(rotas_list[k]) > tamanho_palavra {
+						tamanho_palavra = len(rotas_list[k])
+					}
+				}
+
 
 				// Tamanho do mapa de rotas
 				tamanho := len(rotas_disponiveis)
@@ -190,7 +198,7 @@ func manipularConexao(server net.Conn, endereco string) {
 				var linhas = tamanho / colunas 	// Quantidade de linhas se for um numero multiplo de colunas 
 				var resto = tamanho % colunas 	// Resto da divisão se for maior que zero o numero nao é multiplo de colunas
 				if resto > 0 {
-					linhas += (colunas - resto) // Se o resto for maior que zero, adiciona mais elementos para completar a ultima linha
+					linhas +=  resto // Se o resto for maior que zero, adiciona mais elementos para completar a ultima linha
 				}
 
 				// Criando a matriz de rotas para exibição
@@ -205,7 +213,7 @@ func manipularConexao(server net.Conn, endereco string) {
 							if rotas_disponiveis[rotas_list[k]] == 1 {
 								matriz[i][j] = "\033[31m" + rotas_list[k] + "\033[0m"
 							} else {
-								matriz[i][j] = rotas_list[k]
+								matriz[i][j] = "\033[32m" + rotas_list[k] + "\033[0m"
 							}
 							k++
 						}
@@ -215,16 +223,29 @@ func manipularConexao(server net.Conn, endereco string) {
 				// Exibindo a matriz de rotas
 				fmt.Println("Rotas disponiveis:")
 				fmt.Println("----------------------------------------------------------")
+				
 				for i := 0; i < linhas; i++ {
 					for j := 0; j < colunas; j++ {
-						fmt.Print(matriz[i][j], " - ")
+						tam_cidade := len(matriz[i][j])
+						espacamento := strings.Repeat(" ", tamanho_palavra + 1 - tam_cidade + 12) 
+						fmt.Print(matriz[i][j], espacamento)
+						k++
 					}
 					fmt.Println()
 				}
 				fmt.Print("----------------------------------------------------------\n\n")
 
-				fmt.Print("Digite a rota desejada ou 3 para retornar: ")
+				//fmt.Print("Digite a rota desejada ou 3 para retornar: ")
+				fmt.Println("——————————————————————————————————————————————————————————")
+				fmt.Println("                           OPCOES")
+				fmt.Print("——————————————————————————————————————————————————————————\n\n")
+
+				fmt.Println("Digite o nome da rota para comprar passagem")
+				fmt.Print("Digite 3 para voltar ao menu\n\n")
+				fmt.Print("==========================================================\n\n")
+				
 				fmt.Scanln(&scan)
+				cabecalho(endereco)
 				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
 				if scan != "3"{
@@ -239,9 +260,9 @@ func manipularConexao(server net.Conn, endereco string) {
 
 			case "2":
 				cabecalho(endereco)
-				fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+				fmt.Println("——————————————————————————————————————————————————————————")
 				fmt.Println("                    Consultar passagem")
-				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
+				fmt.Print("——————————————————————————————————————————————————————————\n\n")
 				mens_receb = receber_mensagem(server)
 				if mens_receb == "ok"{
 					rotas_compradas, erro = receber_dados[[]string](server)
@@ -251,10 +272,39 @@ func manipularConexao(server net.Conn, endereco string) {
 						enviar_mensagem(server, mens_env)
 						continue
 					}
-					fmt.Println("Rotas compradas:", rotas_compradas)
+
+					// tamanho da maior palavra de uma rota
+					tamanho_rota := -1
+					fmt.Println("Rotas compradas:")
+					fmt.Println("----------------------------------------------------------")
+					for i := 0; i < len(rotas_compradas); i++ {
+						if len(rotas_compradas[i]) > tamanho_rota {
+							tamanho_rota = len(rotas_compradas[i])
+						}
+					}
+					for i := 0; i < len(rotas_compradas); i++ {
+						espacamento := strings.Repeat(" ", tamanho_rota + 1 - len(rotas_compradas[i]))
+						fmt.Print(rotas_compradas[i], espacamento)
+						if (i+1)%3 == 0 {
+							fmt.Println()
+						}
+					}
+					fmt.Println()
+					fmt.Println("----------------------------------------------------------")
+					
+					//fmt.Print("==========================================================\n\n")
+					//fmt.Print("Digite uma rota para cancelar ou 3 para retornar: ")
+					
+					fmt.Println("——————————————————————————————————————————————————————————")
+					fmt.Println("                           OPCOES")
+					fmt.Print("——————————————————————————————————————————————————————————\n\n")
+
+					fmt.Println("Digite o nome da rota para cancelar passagem")
+					fmt.Print("Digite 3 para voltar ao menu\n\n")
 					fmt.Print("==========================================================\n\n")
-					fmt.Print("Digite uma rota para cancelar ou 3 para retornar: ")
+					
 					fmt.Scanln(&scan)
+					cabecalho(endereco)
 					mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 					enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
 					if scan != "3"{

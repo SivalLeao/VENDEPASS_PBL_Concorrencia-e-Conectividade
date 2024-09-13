@@ -341,7 +341,14 @@ func main() {
 	cliente_id := make(map[string]int) //"Dicionário" que armazena o ID de cada cliente conectado (Ex.: {"127.0.0.1": 1})
 
 	//"Dicionário" das rotas disponíveis e quem as comprou (Ex.: {"Salvador": 1, "Feira de Santana": 3, "Xique-Xique": 4, "Aracaju": 2})
-	rotas := map[string]int{"Salvador": 0, "Feira de Santana": 0, "Xique-Xique": 0, "Aracaju": 0}
+	rotas := map[string]int{
+		"Salvador": 0, 
+		"Feira de Santana": 0, 
+		"Xique-Xique": 0, 
+		"Aracaju": 0, 
+		"Maceio": 0, 
+		"Recife": 0, 
+		"Fortaleza": 0}
 
 	//"Dicionário" que armazena as rotas compradas por cada cliente 
 	//(Ex.: {1: ["Salvador", "Feira de Santana"], 2: ["Aracaju"], 3: ["Feira de Santana"], 4: ["Xique-Xique"]})
