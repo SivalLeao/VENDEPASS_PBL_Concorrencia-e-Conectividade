@@ -143,6 +143,8 @@ func manipularConexao(server net.Conn, endereco string) {
 	fmt.Println("Identificação concluída")
 
 	var scan string // Variável para armazenar os comandos digitados pelo usuário
+	var rotas_compradas []string // Lista de rotas compradas pelo cliente
+	var rotas_disponiveis = make(map[string]int) // Mapa de rotas disponíveis
 
 	// Loop para enviar e receber mensagens
 	for {
@@ -160,6 +162,9 @@ func manipularConexao(server net.Conn, endereco string) {
 
 
 		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
+
+		mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
+		enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
 		
 		switch scan {
 			case "1":
@@ -169,20 +174,18 @@ func manipularConexao(server net.Conn, endereco string) {
 				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 
 				// Solicitar rotas disponíveis do servidor
-				rotas := map[string]int{"Salvador": 1, "Feira de Santana": 1, "Xique-Xique": 0, "Aracaju": 1, "Maceió": 0, "Recife": 0}
-				
-				enviar_mensagem(server, "rotas")
+				rotas_disponiveis, erro = receber_dados[map[string]int](server)
 				
 				// Lista de rotas (apenas nome)
 				var rotas_list []string
 
 				// Preenchendo a lista de rotas
-				for chave := range rotas {
+				for chave := range rotas_disponiveis {
 					rotas_list = append(rotas_list, chave)
 				}
 
 				// Tamanho do mapa de rotas
-				tamanho := len(rotas)
+				tamanho := len(rotas_disponiveis)
 				var colunas = 3  				// Quantidade de colunas
 				var linhas = tamanho / colunas 	// Quantidade de linhas se for um numero multiplo de colunas 
 				var resto = tamanho % colunas 	// Resto da divisão se for maior que zero o numero nao é multiplo de colunas
@@ -199,7 +202,7 @@ func manipularConexao(server net.Conn, endereco string) {
 						if k >= tamanho {
 							matriz[i][j] = ""			
 						} else {
-							if rotas[rotas_list[k]] == 1 {
+							if rotas_disponiveis[rotas_list[k]] == 1 {
 								matriz[i][j] = "\033[31m" + rotas_list[k] + "\033[0m"
 							} else {
 								matriz[i][j] = rotas_list[k]
@@ -220,28 +223,74 @@ func manipularConexao(server net.Conn, endereco string) {
 				}
 				fmt.Print("----------------------------------------------------------\n\n")
 
-				fmt.Print("Digite a rota desejada: ")
+				fmt.Print("Digite a rota desejada ou 3 para retornar: ")
 				fmt.Scanln(&scan)
 				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
-		}
-		
-		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
-		mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
-		enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
-		
-		fmt.Println("\nMensagem enviada\n")
+				if scan != "3"{
+					mens_receb = receber_mensagem(server)
+					if mens_receb == "ok"{
+						fmt.Println("Operação concluída com sucesso!")
+					} else {
+						fmt.Println("Erro ao processar a operação!")
+					}
+				}
+				continue
 
-		// Recebendo mensagem do server
-		// Guardando a mensagem
-		mens_receb = receber_mensagem(server)
+			case "2":
+				cabecalho(endereco)
+				fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
+				fmt.Println("                    Consultar passagem")
+				fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
+				mens_receb = receber_mensagem(server)
+				if mens_receb == "ok"{
+					rotas_compradas, erro = receber_dados[[]string](server)
+					if erro != nil {
+						fmt.Println("Erro ao receber rotas compradas:", erro)
+						mens_env = "erro"
+						enviar_mensagem(server, mens_env)
+						continue
+					}
+					fmt.Println("Rotas compradas:", rotas_compradas)
+					fmt.Print("==========================================================\n\n")
+					fmt.Print("Digite uma rota para cancelar ou 3 para retornar: ")
+					fmt.Scanln(&scan)
+					mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
+					enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+					if scan != "3"{
+						mens_receb = receber_mensagem(server)
+						if mens_receb == "ok"{
+							fmt.Println("Operação concluída com sucesso!")
+						} else {
+							fmt.Println("Erro ao processar a operação!")
+						}
+					}
+					continue
+				} else {
+					fmt.Println("Mensagem recebida:", mens_receb + "\n")
+					fmt.Print("==========================================================\n\n")
+					continue
+				}
 
-		// Exibindo a mensagem
-		fmt.Println("Mensagem recebida:", mens_receb +"\n")
-		fmt.Println("=============================================\n")
+			case "3":
+				cabecalho(endereco)
+				fmt.Println("Preparando para encerrar conexão...")
+				mens_receb = receber_mensagem(server)
+				fmt.Println("Mensagem recebida:", mens_receb)
+				if mens_receb == "exit_ok" {
+					fmt.Println("Encerrando conexão...")
+					return
+				} else {
+					fmt.Println("Erro ao encerrar conexão")
+					continue
+				}
 
-		if (scan == "exit" && mens_receb == "exit_ok") { // Se o comando digitado for "exit" e a mensagem recebida for "exit_ok", encerra a conexão
-			return
+			default:
+				cabecalho(endereco)
+				mens_receb = receber_mensagem(server)
+				fmt.Println("Mensagem recebida:", mens_receb +"\n")
+				fmt.Print("=============================================\n\n")
+				continue
 		}
 	}
 }

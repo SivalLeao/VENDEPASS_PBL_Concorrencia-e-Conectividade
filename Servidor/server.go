@@ -139,6 +139,14 @@ func receber_dados[Tipo any](cliente net.Conn) (Tipo, error) {
 	return dados, nil
 }
 
+func exib_mens_receb(mens_receb string, ip string, porta string){
+	//exibindo mensagem recebida
+	fmt.Println("Mensagem recebida!")
+	fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta + "\033[0m")
+	fmt.Println("\n\033[33m",mens_receb +"\033[0m\n")
+	return
+}
+
 //Função para manipular a conexão com o cliente
 func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rotas map[string]int, cliente_rotas map[int][]string) {
 	//fechar conexao no fim da operacao
@@ -159,9 +167,12 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 	fmt.Println("Conexão estabelecida com o cliente!")
 	fmt.Println("Ip:\033[34m", ip, "\033[0mPorta:\033[34m", porta + "\033[0m")
 
+	var erro error //Variável para armazenar erros
 	var mens_env string //Variável para armazenar a mensagem a ser enviada
 	var mens_receb string //Variável para armazenar a mensagem recebida
 	var comando []string //Variável para armazenar o comando recebido a partir do particionamento da mensagem recebida
+	var id_receb int //Variável para armazenar o IP recebido a partir do particionamento da mensagem recebida
+	var operacao string //Variável para armazenar a operação recebida a partir do particionamento da mensagem recebida
 
 	if existe { //Se o cliente já foi identificado, envia o ID antigo
 		mens_env = strconv.Itoa(id_antigo)
@@ -194,51 +205,110 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 		mens_receb = receber_mensagem(cliente) //Recebe a mensagem do cliente com seus comandos
 
 		cabecalho()
-		//exibindo mensagem recebida
-		fmt.Println("Mensagem recebida!")
-		fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta + "\033[0m")
-		fmt.Println("\n\033[33m",mens_receb +"\033[0m\n")
+		exib_mens_receb(mens_receb, ip, porta)
 
-		//Início particionando a mensagem recebida
-		comando = strings.Split(mens_receb, ":")
-		if len(comando) != 2 {
-			fmt.Println("Comando inválido recebido!")
-			mens_env = "Invalido"
-			enviar_mensagem(cliente, mens_env)
+		//Particionando a mensagem recebida
+		comando = strings.Split(mens_receb, ":") //Particiona a mensagem recebida
+		if len(comando) < 2 { //Se a mensagem não for particionada corretamente, exibe uma mensagem de erro
+			fmt.Println("Mensagem inválida recebida")
 			continue
 		}
-		id_receb, _ := strconv.Atoi(comando[0])
-		//Fim particionando a mensagem recebida
+		id_receb, _= strconv.Atoi(comando[0]) //O ID é a primeira parte da mensagem recebida
+		operacao = comando[1] //A operação é a segunda parte da mensagem recebida
 
-		pertence, existe := rotas[comando[1]] //Verifica se a rota existe e se ela já foi comprada
+		//Verificando a operação
+		switch operacao {
+			case "1": //Comprar passagem
+				erro = enviar_dados(cliente, rotas) //Envia as rotas disponíveis
+				if erro != nil {
+					fmt.Println("Erro ao enviar rotas disponíveis:", erro)
+					continue
+				}
+				mens_receb = receber_mensagem(cliente) //Recebe a rota escolhida pelo cliente
+				comando = strings.Split(mens_receb, ":") //Particiona a mensagem recebida
+				if len(comando) < 2 { //Se a mensagem não for particionada corretamente, exibe uma mensagem de erro
+					fmt.Println("Mensagem inválida recebida")
+					continue
+				}
+				id_receb, _= strconv.Atoi(comando[0]) //O ID é a primeira parte da mensagem recebida
+				operacao = comando[1] //A operação é a segunda parte da mensagem recebida
+				if operacao != "3" {
+					pertence, existe := rotas[operacao] //Verifica se a rota existe
+					if (!existe || pertence != 0) { //Se a rota não existe ou já foi comprada, exibe uma mensagem
+						fmt.Println("Rota inválida!")
+						mens_env = "Rota inválida!"
+						enviar_mensagem(cliente, mens_env)
+						continue
+					}
+					rotas[operacao] = id_receb //A rota é comprada pelo cliente
+					cliente_rotas[id_receb] = append(cliente_rotas[id_receb], operacao) //A rota é adicionada à lista de rotas compradas pelo cliente
+					mens_env = "ok"
+					enviar_mensagem(cliente, mens_env)
+					fmt.Println("Operação concluída com sucesso!")
+				}
+				continue
 
-		if !existe { //Se a rota não existe, envia uma mensagem de erro
-			fmt.Println("Rota não encontrada!")
-			mens_env = "Rota não encontrada!"
-		} else { //Se a rota existe, verifica se ela já foi comprada
-			if pertence == 0 { //Se a rota está disponível, envia uma mensagem de sucesso e atualiza o dicionário de rotas
-				fmt.Println("Rota", comando[1], "disponível!")
-				mens_env = "Rota comprada!"
-				rotas[comando[1]] = id_receb
-			} else { //Se a rota já foi comprada, envia uma mensagem de erro
-				fmt.Println("Rota", comando[1], "indisponível!")
-				mens_env = "Rota indisponível!"
-			}
-		}
+			case "2": //Consultar passagem
+				rotas_compradas, existe := cliente_rotas[id_receb] //Verifica se o cliente já comprou alguma passagem
+				if (!existe || len(rotas_compradas) < 1) { //Se o cliente não comprou nenhuma passagem, exibe uma mensagem
+					fmt.Println("Cliente", id_receb, "ainda não comprou nenhuma passagem!")
+					mens_env = "Sem passagens compradas"
+					enviar_mensagem(cliente, mens_env)
+					continue
+				} else { //Se o cliente comprou...
+					mens_env = "ok"
+					enviar_mensagem(cliente, mens_env)
+					erro = enviar_dados(cliente, rotas_compradas) //Envia as rotas compradas pelo cliente
+					if erro != nil {
+						fmt.Println("Erro ao enviar rotas compradas:", erro)
+						continue
+					}
+					mens_receb = receber_mensagem(cliente) //Recebe resposta do que fazer a seguir (Rota para cancelar ou 3 para voltar)
+					comando = strings.Split(mens_receb, ":") //Particiona a mensagem recebida
+					if len(comando) < 2 { //Se a mensagem não for particionada corretamente, exibe uma mensagem de erro
+						fmt.Println("Mensagem inválida recebida")
+						continue
+					}
+					id_receb, _= strconv.Atoi(comando[0]) //O ID é a primeira parte da mensagem recebida
+					operacao = comando[1] //A operação é a segunda parte da mensagem recebida
+					if operacao != "3" { //Se a operação não for 3, o cliente deseja cancelar uma rota
+						pertence, existe := rotas[operacao] //Verifica se a rota existe
+						if (!existe || pertence != id_receb) { //Se a rota não existe ou não pertence ao cliente, exibe uma mensagem
+							fmt.Println("Rota inválida!")
+							mens_env = "Rota inválida!"
+							enviar_mensagem(cliente, mens_env)
+							continue
+						}
+						rotas[operacao] = 0 //Libera a rota
+						// Fazer algo pra remover a rota da lista de rotas compradas do cliente
+						var rotas_compradas_atualizada []string
+						for _, rota := range rotas_compradas {
+							if rota != operacao {
+								rotas_compradas_atualizada = append(rotas_compradas_atualizada, rota)
+							}
+						}
+						cliente_rotas[id_receb] = rotas_compradas_atualizada
+						//cliente_rotas[id_receb] = append(cliente_rotas[id_receb][:0], cliente_rotas[id_receb][1:]...) //Remove a rota do cliente
+						mens_env = "ok"
+						enviar_mensagem(cliente, mens_env)
+						fmt.Println("Operação concluída com sucesso!")
+					}
+					continue
+				}
 
-		//Tratando a mensagem resposta
-		if (comando[1] == "exit") { //Se o comando for "exit", encerra a conexão com o cliente
-			mens_env = "exit_ok" //Envia uma mensagem de confirmação de encerramento
-		}
+			case "3": //Sair
+				mens_env = "exit_ok"
+				enviar_mensagem(cliente, mens_env)
+				fmt.Println("Cliente", id_receb, "desconectado!")
+				return
 
-		enviar_mensagem(cliente, mens_env) //Envia a mensagem de resposta ao cliente
-
-		if (comando[1] == "exit") { //Se o comando for "exit", encerra a conexão com o cliente
-			fmt.Println("Encerramento confirmado!")
-			return
+			default:
+				fmt.Println("Operação inválida!")
+				mens_env = "Operação inválida!"
+				enviar_mensagem(cliente, mens_env)
+				continue 
 		}
 	}
-
 }
 
 func main() {
