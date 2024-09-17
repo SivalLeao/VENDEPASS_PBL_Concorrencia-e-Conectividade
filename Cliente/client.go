@@ -9,8 +9,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	"bufio"
-	"time"
+	//"bufio"
+	//"time"
 )
 
 //Função para limpar o terminal
@@ -70,6 +70,7 @@ func enviar_mensagem(server net.Conn, mensagem string) {
 
 //Função para receber mensagens
 func receber_mensagem(server net.Conn) string {
+
 	buffer, erro := receber(server)
 	if erro != nil {
 		fmt.Println("Erro ao receber mensagem:", erro)
@@ -248,15 +249,15 @@ func manipularConexao(server net.Conn, endereco string) {
 				
 				//.Scanln(&scan)
 				var scan string
-				scan, _ = bufio.NewReader(os.Stdin).ReadString('\n')
-				
+				//scan, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+				fmt.Scanln(&scan)
 				fmt.Println("Scan:", scan)
 				
 				cabecalho(endereco)
 				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
 				fmt.Println("Mensagem enviada:", mens_env)
-				time.Sleep(15 * time.Second)
+				//time.Sleep(2 * time.Second)
 				if scan != "3"{
 					mens_receb = receber_mensagem(server)
 					if mens_receb == "ok"{
@@ -327,7 +328,7 @@ func manipularConexao(server net.Conn, endereco string) {
 					continue
 				} else {
 					fmt.Println("Mensagem recebida:", mens_receb + "\n")
-					fmt.Print("==========================================================\n\n")
+					fmt.Print("——————————————————————————————————————————————————————————\n\n")
 					continue
 				}
 
