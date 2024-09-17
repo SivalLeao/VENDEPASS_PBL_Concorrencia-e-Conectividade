@@ -9,6 +9,7 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"time"
 )
 
 //Função para limpar o terminal
@@ -178,6 +179,7 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 		mens_env = strconv.Itoa(id_antigo)
 	} else { //Se o cliente não foi identificado, envia o ID atual e futuramente incrementa o ID
 		mens_env = strconv.Itoa(*id)
+		id_antigo = *id
 	}
 
 	enviar_mensagem(cliente, mens_env) //Envia a mensagem de identificação (ID do cliente)
@@ -211,7 +213,8 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 		comando = strings.Split(mens_receb, ":") //Particiona a mensagem recebida
 		if len(comando) < 2 { //Se a mensagem não for particionada corretamente, exibe uma mensagem de erro
 			fmt.Println("Mensagem inválida recebida")
-			continue
+			fmt.Println("Desconectando cliente", id_antigo)
+			return
 		}
 		id_receb, _= strconv.Atoi(comando[0]) //O ID é a primeira parte da mensagem recebida
 		operacao = comando[1] //A operação é a segunda parte da mensagem recebida
@@ -262,6 +265,7 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 				} else { //Se o cliente comprou...
 					mens_env = "ok"
 					enviar_mensagem(cliente, mens_env)
+					time.Sleep(1 * time.Millisecond) //Espera um pouco para o cliente receber a mensagem
 					erro = enviar_dados(cliente, rotas_compradas) //Envia as rotas compradas pelo cliente
 					if erro != nil {
 						fmt.Println("Erro ao enviar rotas compradas:", erro)
