@@ -38,7 +38,7 @@ func cabecalho(endereco string) {
 	fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|\033[32m             VENDEPASS: Venda de Passagens         	 \033[0m|")
 	fmt.Println("|--------------------------------------------------------|")
-	fmt.Println("|\033[34m            Conectado:", endereco + "                \033[0m|")
+	fmt.Println("|\033[34m            Conectado:", endereco + "               \033[0m|")
 	fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 }
 
