@@ -30,7 +30,12 @@
 <div id="arquitetura">
     <h2>Arquitetura do sistema</h2>
     <div align="justify">
-        O sistema opera com uma arquitetura de comunicação cliente-servidor, na qual ocorre a troca de mensagens utilizando o protocolo TCP/IP. Esse protocolo assegura que as mensagens sejam entregues ao destino com integridade, garantindo a confiabilidade e a segurança do sistema.
+        <p>
+            O sistema opera com uma arquitetura de comunicação cliente-servidor, na qual ocorre a troca de mensagens utilizando o protocolo TCP/IP. Esse protocolo assegura que as mensagens sejam entregues ao destino com integridade, garantindo a confiabilidade e a segurança do sistema.
+        </p>
+        <p>
+            Todos os dados recorrentes de procesamento de comprar e cancelamento são atribuido ao servidor, assim quando um cliente se desconectar suas infomacoes ficaram salvas desde que o servidor esteja funcionando, garantido assim uma seguranca nos dados. 
+        </p>
         <h3>Servidor</h3>
         <p>
             O servidor é responsável pelo processamento e armazenamento de todas as informações referentes ao funcionamento do sistema. Sendo elas, as rotas de voo dispostas em seu sistema e suas disponibilidades para compra. 
@@ -74,7 +79,7 @@
                 Encerrar a conexão de forma segura com um cliente
             </li>
         </ol>
-        É importante frisar que tais informações armazenadas estarão disponíveis apenas enquanto o servidor estiver funcionando. No momento de seu desligamento, todos os registros serão retornados a seus valores padrões.
+        É ultilizado o protocolo <em>stateful</em>, salvando as informações em variaveis no sistema do servidor, porém é importante frisar que tais informações armazenadas estarão disponíveis apenas enquanto o servidor estiver funcionando. No momento de seu desligamento, todos os registros serão retornados a seus valores padrões.
         <h3>Cliente</h3>
         É a parte do sistema com o qual o usuário irá interagir para realizar suas solicitações, como comprar voos, ver voos comprados e até mesmo cancelá-los. É responsável por oferecer uma interface baseada em terminal para possibilitar que os usuários possam visualizar as informações e inserirem as ações que desejam realizar. Por meio dessa parte do sistema será possível:
         <ol>
@@ -107,7 +112,7 @@
                 Encerrar a conexão de forma segura com o servidor
             </li>
         </ol>
-        O cliente não possui nenhum armazenamento de dados e realiza processamento apenas na questão de enviar e receber mensagens, tal como processa a exibição da lista de passagens disponíveis, representando com cores quais estão liberadas para compra e quais estão atualmente ocupadas.
+        O cliente utiliza o protocolo <em>stateless</em>, não possui nenhum armazenamento de dados e realiza processamento apenas para o envio e recebimento de mensagens, tal como processa a exibição da lista de passagens disponíveis, representando com cores quais estão liberadas para compra e quais estão atualmente ocupadas, respectivamente verde e vermelho.
     </div>
 </div>
 
