@@ -20,12 +20,10 @@
 <h1 align="center">Sumário</h1>
 <div id="sumario">
     <ul>
-        <li><a href="introducao">Introdução</a></li>
-        <li><a href="arquitetura">Arquitetura do sistema</a></li>
-        <li><a href="comunicacao">Comunicação</a></li>
-        <li><a href="resultados">Resultados</a></li>
-        <li><a href="conclusao">Conclusão</a></li>
-        <li><a href="id">texto aqui</a></li>
+        <li><a href="#arquitetura">Arquitetura do sistema</a></li>
+        <li><a href="#comunicacao">Comunicação</a></li>
+        <li><a href="#resultados">Resultados</a></li>
+        <li><a href="#conclusao">Conclusão</a></li>
     </ul>
 </div>
 
