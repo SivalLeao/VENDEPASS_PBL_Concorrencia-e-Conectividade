@@ -51,7 +51,6 @@ func endereco_local() (string, string){
 
 	endr := strings.Split(conn.LocalAddr().String(), ":")[0]
 
-	//endereco := endereco_local() //Obtendo o endereço IP local
 	porta := "8088"
 
 	return endr, porta
@@ -168,12 +167,12 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 	fmt.Println("Conexão estabelecida com o cliente!")
 	fmt.Println("Ip:\033[34m", ip, "\033[0mPorta:\033[34m", porta + "\033[0m")
 
-	var erro error //Variável para armazenar erros
-	var mens_env string //Variável para armazenar a mensagem a ser enviada
-	var mens_receb string //Variável para armazenar a mensagem recebida
-	var comando []string //Variável para armazenar o comando recebido a partir do particionamento da mensagem recebida
-	var id_receb int //Variável para armazenar o IP recebido a partir do particionamento da mensagem recebida
-	var operacao string //Variável para armazenar a operação recebida a partir do particionamento da mensagem recebida
+	var erro error 			//Variável para armazenar erros
+	var mens_env string 	//Variável para armazenar a mensagem a ser enviada
+	var mens_receb string 	//Variável para armazenar a mensagem recebida
+	var comando []string 	//Variável para armazenar o comando recebido a partir do particionamento da mensagem recebida
+	var id_receb int 		//Variável para armazenar o IP recebido a partir do particionamento da mensagem recebida
+	var operacao string 	//Variável para armazenar a operação recebida a partir do particionamento da mensagem recebida
 
 	if existe { //Se o cliente já foi identificado, envia o ID antigo
 		mens_env = strconv.Itoa(id_antigo)
@@ -321,8 +320,8 @@ func manipularConexao(cliente net.Conn, id *int, cliente_id map[string]int, rota
 
 func main() {
 	/*
-		    *Criando o servidor
-			* A função Listen cria servidores
+	*Criando o servidor
+	* A função Listen cria servidores
 	*/
 
 	_, porta := endereco_local() //Obtendo o endereço IP local
@@ -336,9 +335,6 @@ func main() {
 
 	//fecha a porta
 	defer server.Close()
-
-	//endereco := endereco_local() //Obtendo o endereço IP local
-	//porta := "8088"
 	
 	// se funcionar
 	cabecalho() //Exibindo o endereço local para conexão

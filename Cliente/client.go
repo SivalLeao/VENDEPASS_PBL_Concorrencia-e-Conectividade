@@ -9,8 +9,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-	//"bufio"
-	//"time"
 )
 
 //Função para limpar o terminal
@@ -154,7 +152,6 @@ func manipularConexao(server net.Conn, endereco string) {
 	for {
 
 		// Enviar mensagem
-		//fmt.Print("Digite a mensagem a ser enviada: ")
 		fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 		fmt.Println("                            MENU")
 		fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
@@ -238,7 +235,6 @@ func manipularConexao(server net.Conn, endereco string) {
 				}
 				fmt.Print("----------------------------------------------------------\n\n")
 
-				//fmt.Print("Digite a rota desejada ou 3 para retornar: ")
 				fmt.Println("——————————————————————————————————————————————————————————")
 				fmt.Println("                           OPCOES")
 				fmt.Print("——————————————————————————————————————————————————————————\n\n")
@@ -247,17 +243,15 @@ func manipularConexao(server net.Conn, endereco string) {
 				fmt.Print("Digite 3 para voltar ao menu\n\n")
 				fmt.Print("==========================================================\n\n")
 				
-				//.Scanln(&scan)
 				var scan string
-				//scan, _ = bufio.NewReader(os.Stdin).ReadString('\n')
+				
 				fmt.Scanln(&scan)
 				fmt.Println("Scan:", scan)
 				
 				cabecalho(endereco)
 				mens_env = id + ":" + scan // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
-				fmt.Println("Mensagem enviada:", mens_env)
-				//time.Sleep(2 * time.Second)
+	
 				if scan != "3"{
 					mens_receb = receber_mensagem(server)
 					if mens_receb == "ok"{
@@ -301,9 +295,6 @@ func manipularConexao(server net.Conn, endereco string) {
 					}
 					fmt.Println()
 					fmt.Println("----------------------------------------------------------")
-					
-					//fmt.Print("==========================================================\n\n")
-					//fmt.Print("Digite uma rota para cancelar ou 3 para retornar: ")
 					
 					fmt.Println("——————————————————————————————————————————————————————————")
 					fmt.Println("                           OPCOES")
@@ -358,8 +349,8 @@ func manipularConexao(server net.Conn, endereco string) {
 func main() {
 	lipar_terminal()
 	/*
-		    * Acessando o servidor
-			* A função Dial conecta-se a um servidor
+	* Acessando o servidor
+	* A função Dial conecta-se a um servidor
 	*/
 
 	var endereco_alvo string
@@ -375,9 +366,6 @@ func main() {
 	//fechando a conexao
 	defer conexao.Close()
 
-	cabecalho(endereco_alvo)
-	//fmt.Println("Conectado ao servidor no endereço", endereco_alvo)
-
+	cabecalho(endereco_alvo) // Exibe o cabeçalho com o endereço do servidor para conexão
 	manipularConexao(conexao, endereco_alvo) // Manipula a conexão com o servidor
-
 }
