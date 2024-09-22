@@ -13,7 +13,7 @@ import (
 )
 
 //Função para limpar o terminal
-func lipar_terminal() {
+func limpar_terminal() {
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
@@ -33,7 +33,7 @@ func lipar_terminal() {
 
 //Função para exibir o cabeçalho com o endereço do servidor para conexão
 func cabecalho() {
-	lipar_terminal()
+	limpar_terminal()
 	endereco, porta := endereco_local()
 	fmt.Println("=-=-=-=-=-=-==-=-=-==-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|  Servidor funcionando no endereço:\033[32m", endereco+":"+porta + "  \033[0m|")

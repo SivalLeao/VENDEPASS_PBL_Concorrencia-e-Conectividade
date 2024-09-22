@@ -12,7 +12,7 @@ import (
 )
 
 //Função para limpar o terminal
-func lipar_terminal() {
+func limpar_terminal() {
 	var cmd *exec.Cmd
 
 	switch runtime.GOOS {
@@ -32,7 +32,7 @@ func lipar_terminal() {
 
 //Função para exibir o cabeçalho com o endereço do servidor para conexão
 func cabecalho(endereco string) {
-	lipar_terminal()
+	limpar_terminal()
 	fmt.Println("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-")
 	fmt.Println("|\033[32m             VENDEPASS: Venda de Passagens         	 \033[0m|")
 	fmt.Println("|--------------------------------------------------------|")
@@ -347,7 +347,7 @@ func manipularConexao(server net.Conn, endereco string) {
 }
 
 func main() {
-	lipar_terminal()
+	limpar_terminal()
 	/*
 	* Acessando o servidor
 	* A função Dial conecta-se a um servidor
