@@ -351,6 +351,7 @@ O menu do cliente será exibido, permitindo que o usuário interaja com o sistem
     <img src="img/comprar passagem.png" width = "400"/>
     </p>
     <p align="center"><strong>Comprando passagem</strong></p>
+    <p align="center">
     <img src="img/cancelando compra.png" width = "400"/>
     </p>
     <p align="center"><strong>Cancelando compra de passagem</strong></p>
