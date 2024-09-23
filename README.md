@@ -22,7 +22,9 @@
     <ul>
         <li><a href="#arquitetura">Arquitetura do sistema</a></li>
         <li><a href="#comunicacao">Comunicação</a></li>
+        <li><a href="#formatação">Formatação e tratamento de dados</a></li>
         <li><a href="#resultados">Resultados</a></li>
+        <li><a href="#execucao">Execução do Projeto</a></li>
         <li><a href="#conclusao">Conclusão</a></li>
     </ul>
 </div>
@@ -221,8 +223,20 @@
     </p>
 </div>
 
+<div id="formatação">
+    <h2>Formatação e tratamento de dados</h2>
+    <div align="justify">
+        <p>
+            Para o correto funcionamento da comunicação cliente-servidor, é essencial definir o formato dos dados que serão enviados e recebidos por ambos. Para isso, foram analisadas as estruturas disponíveis na linguagem, com o objetivo de transmitir apenas os dados necessários, minimizando o volume de envio para atender ao problema proposto. Optou-se por utilizar um map tanto na comunicação do servidor para o cliente quanto do cliente para o servidor, pois essa estrutura permite o envio de dados associados, como o nome das rotas, disponibilidade, e as requisições do usuário vinculadas ao seu ID.
+        </p>
+        <p>
+            Antes de qualquer envio, os dados são serializados e convertidos em um arquivo JSON, seguindo o formato de um map em Go. O destinatário, por sua vez, desserializa a mensagem para tratá-la adequadamente. Devido à utilização de uma estrutura de dados específica da linguagem, tanto o servidor quanto o cliente devem estar implementados em Go para garantir a compatibilidade na comunicação.
+        </p>
+    </div>
+</div>
+
 <div id="resultados">
-    <h3>Resultados</h3>
+    <h2>Resultados</h2>
     <div align="justify">
         <p>
             Tendo sido testado em laboratório com uso de diversos computadores para simular a conexão simultânea de múltiplos clientes, foi possível averiguar que o sistema consegue lidar corretamente com as diversas comunicações ocorrendo simultaneamente, tal como se era esperado em teoria de acordo com as tecnologias oferecidas pela linguagem Go. Além disso, foi possível comprar que o servidor foi capaz de reconhecer corretamente cada cliente que se conectou e reconectou, sendo possível a recuperação dos dados e compras de cada usuário simulado.
@@ -239,8 +253,112 @@
     </div>
 </div>
 
+<div id="execucao">
+    <h2>Execução do Projeto</h3>
+    <div align="justify">
+    <h3>Abrir o Terminal</h3>
+    <p>
+        Este projeto deve ser executado no terminal do sistema operacional ou em IDEs Ambientes de Desenvolvimento Integrado (Integrated Development Environments).
+    </p>
+    <p>
+    Para abrir o terminal: 
+    <li>
+        No Windows, pressione as teclas <code>Windows + R</code>, digite cmd na janela que abrir e confirme.
+    </li>
+    <li>
+        No Linux, pressione as teclas <code>Ctrl + Alt + T</code> para abrir o terminal. 
+    </li>
+    Com o terminal aberto, navegue até o diretório onde os arquivos foram baixados utilizando o comando <code>cd</code>, por exemplo,
+    </p>
+    <p> 
+    <code>cd C:\VENDEPASS_PBL_Concorrencia-e-Conectividade\Servidor</code>
+    </p>
+    <h3>Sem docker</h3>
+    <p>
+        Para executar o projeto sem Docker, primeiramente, é necessário configurar o ambiente de trabalho instalando a linguagem de programação <a href=" https://go.dev/doc/install">Go</a>. Em seguida, faça o download dos arquivos disponibilizados neste repositório.
+    </p>
+    <p>
+        Deve ser aberto um terminal para cada código, e cada um possui um diretório diferente.
+    </p>
+    <p>
+        O primeiro arquivo a ser executado deve ser o servidor. Embora o cliente possa ser iniciado primeiro, o servidor é quem comunica o endereço da conexão.
+    </p>
+    <p> 
+    Para iniciar o servidor, insira o seguinte comando no terminal:
+
+    go run server.go 
+
+O servidor estará funcionando e exibirá o IP e a porta da conexão. Após o servidor ser iniciado, não será possível interagir diretamente com ele, apenas visualizar suas saídas.
+    </p>
+    <p align="center">
+      <img src="img/Tela inical do servidor.jpeg" width = "400" />
+    </p>
+    <p align="center"><strong>Tela inicial do servidor</strong></p>
+    <h3>Cliente</h3>
+    <p>
+    Para iniciar o cliente, insira o comando no terminal:
+
+    go run client.go
+
+Logo após, será solicitado que insira o endereço da conexão exatamente como foi informado pelo servidor, incluindo todos os pontos separadores.
+    <p align="center">
+    <img src="img/solicitacao de endereco.png" width = "400"/>
+    </p>
+    <p align="center"><strong>Tela de solicitação para se conectar ao servidor</strong></p>
+
+
+O menu do cliente será exibido, permitindo que o usuário interaja com o sistema utilizando os números do teclado para selecionar as opções desejadas.
+    <p align="center">
+    <img src="img/menu do usuario.png" width = "400"/>
+    </p>
+    <p align="center"><strong>Menu do usuário</strong></p>
+</p>
+    <h3>Com Docker</h3>
+    <p>
+        Para executar o projeto, com Docker é necessário ter o docker instalado na sua máquina, em seguida baixar os arquivos dispostos neste repositório.
+    </p>
+    <h3>Servidor</h3>
+    <p>
+        Para utilizar os arquivos em contêiner é necessário primeiro criar a imagem docker.
+
+Utilize o comando para gerar a imagem:
+
+    docker build -t server .
+
+Para executar a imagem, roda a aplicação em container, utilize:  
+
+    docker run -it -p 8088:8088 server
+
+O código será executado e exibirá o endereço e porta, similar ao funcionamento sem docker, e os mesmo procedimentos deverão ser seguido
+</p>
+    <h3>Cliente</h3>
+    <p>
+        Para iniciar o cliente, crie a imagem utilizando o comando a seguir:
+        
+    docker build -t client .
+Para executar a imagem: 
+    
+    docker run -it --rm client
+
+Logo após, será solicitado que você insira o endereço da conexão exatamente como foi informado pelo servidor, incluindo todos os pontos separadores. 
+
+O menu do cliente será exibido, permitindo que o usuário interaja com o sistema utilizando os números do teclado para selecionar as opções desejadas.
+</p>
+    <h3>Comprar/Cancelar Compra</h3>
+    <p>
+        Na tela que apresenta os nomes das cidades disponíveis para compra ou cancelamento de passagens, é importante que o nome da cidade seja digitado exatamente como está exibido, respeitando letras maiusculas e/ou minúsculas e eventuais assentos.
+        <p align="center">
+    <img src="img/comprar passagem.png" width = "400"/>
+    </p>
+    <p align="center"><strong>Comprando passagem</strong></p>
+    <img src="img/cancelando compra.png" width = "400"/>
+    </p>
+    <p align="center"><strong>Cancelando compra de passagem</strong></p>
+    </p>
+</div>
+
 <div id="conclusao">
-    <h3>Conclusão</h3>
+    <h2>Conclusão</h2>
     <div align="justify">
         <p>
             De acordo com os resultados obtidos em testes em laboratório, é possível afirmar que o produto cumpre com o que se propõe inicialmente. Com a execução correta do servidor e do cliente, é possível realizar e cancelar compras de passagens mesmo que haja a presença de diversos usuários simultâneos, com o servidor encarregado de realizar todo o processamento e tratamento de concorrência para o caso de requisições coincidentes de múltiplos usuários.
