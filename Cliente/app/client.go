@@ -19,7 +19,7 @@ func limpar_terminal() {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "cls")
-		
+
 	default: //linux e mac
 		cmd = exec.Command("clear")
 	}
@@ -97,15 +97,6 @@ func receber_mensagem(server net.Conn) string {
 	return string(buffer)
 }
 
-// Função para serializar dados
-func serializar_dados[Tipo any](dados Tipo) ([]byte, error) {
-	jsonData, erro := json.Marshal(dados)
-	if erro != nil {
-		return nil, erro
-	}
-	return jsonData, nil
-}
-
 // Função para desserializar dados
 func desserializar_dados[Tipo any](jsonData []byte) (Tipo, error) {
 	var dados Tipo
@@ -114,19 +105,6 @@ func desserializar_dados[Tipo any](jsonData []byte) (Tipo, error) {
 		return dados, erro
 	}
 	return dados, nil
-}
-
-// Função para enviar dados de um tipo desconhecido (como um slice ou um map)
-func enviar_dados[Tipo any](server net.Conn, dados Tipo) error {
-	jsonData, erro := serializar_dados(dados)
-	if erro != nil {
-		return erro
-	}
-	erro = enviar(server, jsonData)
-	if erro != nil {
-		return erro
-	}
-	return nil
 }
 
 // Função para receber dados de um tipo desconhecido (como um slice ou um map)
@@ -193,7 +171,7 @@ func manipularConexao(server net.Conn, endereco string) {
 			fmt.Print("——————————————————————————————————————————————————————————\n\n")
 
 			// Solicitar rotas disponíveis do servidor
-			rotas_disponiveis, erro = receber_dados[map[string]int](server)
+			rotas_disponiveis, _= receber_dados[map[string]int](server)
 
 			// Lista de rotas (apenas nome)
 			var rotas_list []string
