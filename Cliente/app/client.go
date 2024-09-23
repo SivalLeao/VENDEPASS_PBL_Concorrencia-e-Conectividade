@@ -19,6 +19,7 @@ func limpar_terminal() {
 	switch runtime.GOOS {
 	case "windows":
 		cmd = exec.Command("cmd", "/c", "cls")
+		
 	default: //linux e mac
 		cmd = exec.Command("clear")
 	}
