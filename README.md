@@ -84,7 +84,7 @@
                 Encerrar a conexão de forma segura com um cliente.
             </li>
         </ol>
-        É ultilizado o protocolo <em>stateful</em>, salvando as informações em variaveis no sistema do servidor, porém é importante frisar que tais informações armazenadas estarão disponíveis apenas enquanto o servidor estiver funcionando. No momento de seu desligamento, todos os registros serão retornados a seus valores padrões.
+        É utilizado o protocolo <em>stateful</em>, salvando as informações em variaveis no sistema do servidor, porém é importante frisar que tais informações armazenadas estarão disponíveis apenas enquanto o servidor estiver funcionando. No momento de seu desligamento, todos os registros serão retornados a seus valores padrões.
         <h3>Cliente</h3>
         É a parte do sistema com o qual o usuário irá interagir para realizar suas solicitações, como comprar voos, ver voos comprados e até mesmo cancelá-los. É responsável por oferecer uma interface baseada em terminal para possibilitar que os usuários possam visualizar as informações e inserirem as ações que desejam realizar. Por meio dessa parte do sistema será possível:
         <ol>
@@ -291,7 +291,7 @@
 O servidor estará funcionando e exibirá o IP e a porta da conexão. Após o servidor ser iniciado, não será possível interagir diretamente com ele, apenas visualizar suas saídas.
     </p>
     <p align="center">
-      <img src="img/Tela inical do servidor.jpeg" width = "400" />
+      <img src="img/Tela inicial do servidor.jpeg" width = "400" />
     </p>
     <p align="center"><strong>Tela inicial do servidor</strong></p>
     <h3>Cliente</h3>
