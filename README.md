@@ -230,7 +230,7 @@
             Para o correto funcionamento da comunicação cliente-servidor, é essencial definir o formato dos dados que serão enviados e recebidos por ambos. Para isso, foram analisadas as estruturas disponíveis na linguagem, com o objetivo de transmitir apenas os dados necessários, minimizando o volume de envio para atender ao problema proposto. Optou-se por utilizar um map tanto na comunicação do servidor para o cliente quanto do cliente para o servidor, pois essa estrutura permite o envio de dados associados, como o nome das rotas, disponibilidade, e as requisições do usuário vinculadas ao seu ID.
         </p>
         <p>
-            Antes de qualquer envio, os dados são serializados e convertidos em um arquivo JSON, seguindo o formato de um map em Go. O destinatário, por sua vez, desserializa a mensagem para tratá-la adequadamente. Devido à utilização de uma estrutura de dados específica da linguagem, tanto o servidor quanto o cliente devem estar implementados em Go para garantir a compatibilidade na comunicação.
+            Antes de qualquer envio, os dados são serializados e convertidos em um arquivo JSON, seguindo o formato de um <em>map</em> em Go. O destinatário, por sua vez, desserializa a mensagem para tratá-la adequadamente. Devido à utilização de uma estrutura de dados específica da linguagem, tanto o servidor quanto o cliente devem estar implementados em Go para garantir a compatibilidade na comunicação.
         </p>
     </div>
 </div>
