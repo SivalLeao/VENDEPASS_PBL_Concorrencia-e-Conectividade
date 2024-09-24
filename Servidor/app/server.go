@@ -344,6 +344,7 @@ func main() {
 
 	//"Dicionário" das rotas disponíveis e quem as comprou (Ex.: {"Salvador": 1, "Feira de Santana": 3, "Xique-Xique": 4, "Aracaju": 2})
 	rotas := map[string]int{
+		"Serrinha":		 	0,
 		"Salvador":         0,
 		"Feira-de-Santana": 0,
 		"Xique-Xique":      0,
