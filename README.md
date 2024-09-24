@@ -275,7 +275,7 @@
     </p>
     <h3>Sem docker</h3>
     <p>
-        Para executar o projeto sem Docker, primeiramente, é necessário configurar o ambiente de trabalho instalando a linguagem de programação <a href=" https://go.dev/doc/install">Go</a>. Em seguida, faça o download dos arquivos disponibilizados neste repositório.
+        Para executar o projeto sem Docker, primeiramente, é necessário configurar o ambiente de trabalho instalando a linguagem de programação <a href="https://go.dev/doc/install">Go</a>. Em seguida, faça o download dos arquivos disponibilizados neste repositório.
     </p>
     <p>
         Deve ser aberto um terminal para cada código, e cada um possui um diretório diferente.
