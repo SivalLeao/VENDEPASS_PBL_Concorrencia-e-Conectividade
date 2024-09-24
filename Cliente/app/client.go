@@ -75,26 +75,39 @@ func receber(server net.Conn) ([]byte, error) {
 }
 
 // Função para enviar mensagens
-func enviar_mensagem(server net.Conn, mensagem string) {
+func enviar_mensagem(server net.Conn, mensagem string) int {
 	// Converte a mensagem de string para bytes e chama a função 'enviar'
 	erro := enviar(server, []byte(mensagem))
 	// Verifica se houve algum erro ao enviar a mensagem
 	if erro != nil {
 		limpar_terminal()
 		// Verifica se a mensagem de erro contém a mensagem de erro de conexão forçada indicando instabilidade no servidor, ou perda de conexão
-		if strings.Contains(erro.Error(), "Foi forçado o cancelamento de uma conexão existente pelo host remoto") {
+		if strings.Contains(erro.Error(), "Foi forçado o cancelamento de uma conexão existente pelo host remoto") ||  strings.Contains(erro.Error(), "broken pipe") {
 			fmt.Println("\033[31m           Servidor com instabilidade...\033[0m")
 			fmt.Print("Foi forçado o cancelamento de uma conexão \nexistente pelo host remoto\n")
 			time.Sleep(5 * time.Second)
 
 			// Chama a função main() para reiniciar o fluxo do programa
-			main()
+			//main()
+			return 1
 		}
+		
+		// if strings.Contains(erro.Error(), "broken pipe") {
+		// 	fmt.Println("\033[31m           Servidor com instabilidade...\033[0m")
+		// 	fmt.Print("Foi forçado o cancelamento de uma conexão \nexistente pelo host remoto\n")
+		// 	time.Sleep(5 * time.Second)
+
+		// 	Chama a função main() para reiniciar o fluxo do programa
+		// 	main()
+		// 	return 1
+		// }
+
 		fmt.Println("--------------------------------------------")
 		fmt.Println("Erro ao enviar mensagem:", erro)
 		fmt.Println("--------------------------------------------")
-		return
+		return 0
 	}
+	return 0
 }
 
 // Função para receber mensagens
@@ -158,7 +171,10 @@ func manipularConexao(server net.Conn, endereco string) {
 	id := mens_receb // Guarda o id que foi recebido e atribuído pelo servidor
 
 	mens_env := "ID_ok"               // Envia a mensagem de confirmação de identificação
-	enviar_mensagem(server, mens_env) // Envia a mensagem de confirmação de identificação
+	volta := enviar_mensagem(server, mens_env) // Envia a mensagem de confirmação de identificação
+	if volta == 1{
+		return
+	}
 
 	fmt.Print("                 Identificação concluída\n\n")
 
@@ -182,7 +198,10 @@ func manipularConexao(server net.Conn, endereco string) {
 		fmt.Scanln(&scan) // Recebe o comando que se deseja realizar
 
 		mens_env = id + ":" + scan        // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
-		enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+		volta = enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+		if volta == 1{
+			return
+		}
 
 		switch scan {
 		case "1":
@@ -226,7 +245,7 @@ func manipularConexao(server net.Conn, endereco string) {
 					if k >= tamanho {
 						matriz[i][j] = ""
 					} else {
-						if rotas_disponiveis[rotas_list[k]] == 1 {
+						if rotas_disponiveis[rotas_list[k]] != 0 {
 							matriz[i][j] = "\033[31m" + rotas_list[k] + "\033[0m"
 						} else {
 							matriz[i][j] = "\033[32m" + rotas_list[k] + "\033[0m"
@@ -267,7 +286,10 @@ func manipularConexao(server net.Conn, endereco string) {
 			
 			cabecalho(endereco)
 			mens_env = id + ":" + scan        // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
-			enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+			volta = enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+			if volta == 1{
+				return
+			}
 
 			if scan != "3" {
 				mens_receb = receber_mensagem(server)
@@ -290,7 +312,10 @@ func manipularConexao(server net.Conn, endereco string) {
 				if erro != nil {
 					fmt.Println("Erro ao receber rotas compradas:", erro)
 					mens_env = "erro"
-					enviar_mensagem(server, mens_env)
+					volta = enviar_mensagem(server, mens_env)
+					if volta == 1{
+						return
+					}
 					continue
 				}
 
@@ -324,7 +349,10 @@ func manipularConexao(server net.Conn, endereco string) {
 				fmt.Scanln(&scan)
 				cabecalho(endereco)
 				mens_env = id + ":" + scan        // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
-				enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+				volta = enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor
+				if volta == 1{
+					return
+				}
 				if scan != "3" {
 					mens_receb = receber_mensagem(server)
 					if mens_receb == "ok" {
@@ -369,20 +397,24 @@ func main() {
 	* Acessando o servidor
 	* A função Dial conecta-se a um servidor
 	 */
+	for {
+		var endereco_alvo string
+		fmt.Print("Digite o endereço alvo: ")
+		fmt.Scanln(&endereco_alvo) // Recebe o endereço do servidor a que se deseja conectar
 
-	var endereco_alvo string
-	fmt.Print("Digite o endereço alvo: ")
-	fmt.Scanln(&endereco_alvo) // Recebe o endereço do servidor a que se deseja conectar
+		if endereco_alvo == "exit" || endereco_alvo == "sair"{
+			return
+		}
+		conexao, erro := net.Dial("tcp", endereco_alvo) // Conecta-se ao servidor
 
-	conexao, erro := net.Dial("tcp", endereco_alvo) // Conecta-se ao servidor
+		if erro != nil {
+			fmt.Println("Host invalido...")
+			continue
+		}
+		//fechando a conexao
+		//defer conexao.Close()
 
-	if erro != nil {
-		fmt.Println("Erro ao se conectar ao servidor:", erro)
-		return
+		cabecalho(endereco_alvo)                 // Exibe o cabeçalho com o endereço do servidor para conexão
+		manipularConexao(conexao, endereco_alvo) // Manipula a conexão com o servidor
 	}
-	//fechando a conexao
-	defer conexao.Close()
-
-	cabecalho(endereco_alvo)                 // Exibe o cabeçalho com o endereço do servidor para conexão
-	manipularConexao(conexao, endereco_alvo) // Manipula a conexão com o servidor
 }
