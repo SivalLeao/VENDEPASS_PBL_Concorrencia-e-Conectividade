@@ -1,23 +1,23 @@
-# Use a imagem oficial do Golang como base
+# Usa a imagem oficial do Golang como base
 FROM golang:1.23-alpine
 
 # Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copia go.mod para o contêiner
+# Copia o arquivo go.mod para o contêiner
 COPY go.mod ./
 
-# Faz o download das dependências (isso criará o go.sum)
+# Baixa as dependências do projeto e gera o arquivo go.sum
 RUN go mod download
 
-# Copia o restante dos arquivos do projeto para o contêiner
-COPY app .
+# Copia o restante dos arquivos da aplicação para o contêiner
+COPY app/ .
 
-# Compila o servidor Go
+# Compila o código do servidor Go e gera o binário "server"
 RUN go build -o server .
 
-# Expõe a porta que o servidor vai usar
+# Expõe a porta 8088 que o servidor vai utilizar
 EXPOSE 8088
 
-# Comando para rodar o servidor compilado
+# Comando para rodar o binário do servidor
 CMD ["./server"]

@@ -35,7 +35,7 @@ func limpar_terminal() {
 // Função para exibir o cabeçalho com o endereço do servidor para conexão
 func cabecalho(endereco string) {
 	limpar_terminal()
-	
+
 	tamanho := len(endereco)
 	espacamento := ""
 	if tamanho < 33 {
@@ -48,34 +48,46 @@ func cabecalho(endereco string) {
 	fmt.Print("=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n\n")
 }
 
+// Função enviar: Envia uma mensagem para o servidor
 func enviar(server net.Conn, dado []byte) error {
+	// Escreve a mensagem no servidor
 	_, erro := server.Write(dado)
+	// Verifica se houve um erro ao enviar a mensagem
 	if erro != nil {
 		return erro
 	}
 	return nil
 }
 
+// Função receber: Recebe uma mensagem do servidor
 func receber(server net.Conn) ([]byte, error) {
+	// Cria um buffer de 1024 bytes para armazenar a mensagem recebida
 	buffer := make([]byte, 1024)
+	// Lê os dados enviados pelo servidor e armazena no buffer
+    // tam_bytes contém o número de bytes lidos
 	tam_bytes, erro := server.Read(buffer)
+	// Verifica se houve algum erro durante a leitura
 	if erro != nil {
 		return nil, erro
 	}
+	// Retorna os dados recebidos (ajustando ao tamanho real da mensagem) e nil para indicar ausência de erro
 	return buffer[:tam_bytes], nil
 }
 
 // Função para enviar mensagens
 func enviar_mensagem(server net.Conn, mensagem string) {
+	// Converte a mensagem de string para bytes e chama a função 'enviar'
 	erro := enviar(server, []byte(mensagem))
+	// Verifica se houve algum erro ao enviar a mensagem
 	if erro != nil {
 		limpar_terminal()
-		
+		// Verifica se a mensagem de erro contém a mensagem de erro de conexão forçada indicando instabilidade no servidor, ou perda de conexão
 		if strings.Contains(erro.Error(), "Foi forçado o cancelamento de uma conexão existente pelo host remoto") {
 			fmt.Println("\033[31m           Servidor com instabilidade...\033[0m")
 			fmt.Print("Foi forçado o cancelamento de uma conexão \nexistente pelo host remoto\n")
 			time.Sleep(5 * time.Second)
 
+			// Chama a função main() para reiniciar o fluxo do programa
 			main()
 		}
 		fmt.Println("--------------------------------------------")
@@ -87,33 +99,42 @@ func enviar_mensagem(server net.Conn, mensagem string) {
 
 // Função para receber mensagens
 func receber_mensagem(server net.Conn) string {
-
+	// Chama a função 'receber' para ler os dados enviados pelo servidor e armazena no buffer
 	buffer, erro := receber(server)
+	// Verifica se houve algum erro ao receber a mensagem
 	if erro != nil {
 		fmt.Println("Erro ao receber mensagem:", erro)
 		return ""
 	}
-
+	// Converte o buffer de bytes para string e retorna a mensagem recebida
 	return string(buffer)
 }
 
 // Função para desserializar dados
 func desserializar_dados[Tipo any](jsonData []byte) (Tipo, error) {
 	var dados Tipo
+	// Converte os dados JSON para o tipo especificado
 	erro := json.Unmarshal(jsonData, &dados)
+	// Verifica se houve erro na desserialização
 	if erro != nil {
+		// Retorna o valor zero do tipo e o erro caso ocorra uma falha
 		return dados, erro
 	}
+	// Retorna os dados desserializados e nil se não houver erros
 	return dados, nil
 }
 
 // Função para receber dados de um tipo desconhecido (como um slice ou um map)
 func receber_dados[Tipo any](server net.Conn) (Tipo, error) {
+	// Chama a função 'receber' para obter os dados do servidor
 	buffer, erro := receber(server)
 	var dados Tipo
+	// Verifica se houve erro ao receber os dados
 	if erro != nil {
+		// Retorna o valor zero do tipo e o erro caso ocorra uma falha
 		return dados, erro
 	}
+	// Desserializa os dados recebidos para o tipo especificado
 	dados, erro = desserializar_dados[Tipo](buffer)
 	if erro != nil {
 		return dados, erro
@@ -139,7 +160,7 @@ func manipularConexao(server net.Conn, endereco string) {
 	mens_env := "ID_ok"               // Envia a mensagem de confirmação de identificação
 	enviar_mensagem(server, mens_env) // Envia a mensagem de confirmação de identificação
 
-	fmt.Println(strings.TrimLeft("                 Identificação concluída", "\n\n"))
+	fmt.Print("                 Identificação concluída\n\n")
 
 	var scan string                              // Variável para armazenar os comandos digitados pelo usuário
 	var rotas_compradas []string                 // Lista de rotas compradas pelo cliente
@@ -171,7 +192,7 @@ func manipularConexao(server net.Conn, endereco string) {
 			fmt.Print("——————————————————————————————————————————————————————————\n\n")
 
 			// Solicitar rotas disponíveis do servidor
-			rotas_disponiveis, _= receber_dados[map[string]int](server)
+			rotas_disponiveis, _ = receber_dados[map[string]int](server)
 
 			// Lista de rotas (apenas nome)
 			var rotas_list []string
@@ -243,6 +264,7 @@ func manipularConexao(server net.Conn, endereco string) {
 			fmt.Scanln(&scan)
 			fmt.Println("Scan:", scan)
 
+			
 			cabecalho(endereco)
 			mens_env = id + ":" + scan        // Concatena o id do cliente com o comando que se deseja realizar. A mensagem a ser enviada ao servidor
 			enviar_mensagem(server, mens_env) // Envia a mensagem ao servidor

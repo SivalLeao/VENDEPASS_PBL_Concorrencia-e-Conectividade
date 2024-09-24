@@ -1,23 +1,23 @@
-# Etapa de build
+# Etapa de build: Utiliza uma imagem base do Go
 FROM golang:1.23-alpine
 
-# Diretório de trabalho dentro do contêiner
+# Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
 
-# Copiar todos os arquivos do diretório atual para o diretório de trabalho no contêiner
+# Copia o arquivo go.mod para o diretório de trabalho no contêiner
 COPY go.mod ./
 
-# Compilar o código Go
+# Baixa as dependências do projeto definidas no go.mod
 RUN go mod download
 
-# Definir diretório de trabalho no contêiner
-COPY app .
+# Copia os arquivos da aplicação para o diretório de trabalho no contêiner
+COPY app/ .
 
-# Copiar o binário da etapa de build para a etapa de execução
+# Compila o código Go e gera o binário "client"
 RUN go build -o client .
 
-# Expor a porta que o aplicativo usa (caso necessário)
+# Exponha a porta 8088 (caso o aplicativo utilize essa porta)
 EXPOSE 8088
 
-# Comando de entrada ao iniciar o contêiner
+# Comando que será executado quando o contêiner iniciar
 CMD ["./client"]
