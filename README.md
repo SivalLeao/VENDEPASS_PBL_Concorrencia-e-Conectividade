@@ -135,10 +135,10 @@
                 O servidor inicia enviando ao cliente um número de ID, sendo este um número inteiramente novo ou o número já previamente cadastrado, caso seja um cliente em reconexão.
             </li>
             <li>
-                O cliente verifica se a primeira mensagem recebida na conexão é um número. Caso seja, é enviada uma resposta de confirmação de reconhecimento para o servidor.
+                O cliente verifica se a primeira mensagem recebida na conexão é um número. Caso seja, é enviada uma resposta de confirmação de reconhecimento para o servidor ("ID_ok").
             </li>
             <li>
-                Com a resposta de confirmação sendo devidamente validada no lado do servidor, ambos poderão finalmente iniciar a interação com base em solicitações e comandos do usuário.
+                Com a resposta de confirmação ("ID_ok") sendo devidamente validada no lado do servidor, ambos poderão finalmente iniciar a interação com base em solicitações e comandos do usuário.
             </li>
         </ol>
     </p>
@@ -152,7 +152,7 @@
                 Caso seja solicitada uma operação de compra:
                 <ol type="a">
                     <li>
-                        O servidor inicia a etapa enviando para o cliente a lista de todos os possíveis destinos e se estes estão ocupados ou disponíveis.
+                        O servidor inicia a etapa enviando, em formato JSON, um <em>map</em> para o cliente com de todos os possíveis destinos e se estes estão ocupados ou disponíveis.
                     </li>
                     <li>
                         Tendo o cliente recebido a lista, é esperado que responda com um comando de retorno ou com o nome de um dos destinos para compra.
@@ -165,10 +165,10 @@
                             </li>
                             <ol>
                                 <li>
-                                    Caso o destino recebido não exista ou já esteja ocupado, será enviada ao cliente uma mensagem que indique que aquela é uma rota inválida e ambos cliente e servidor retornarão à etapa de menu principal.
+                                    Caso o destino recebido não exista ou já esteja ocupado, será enviada ao cliente uma mensagem de erro ("Rota inválida!") e ambos cliente e servidor retornarão à etapa de menu principal.
                                 </li>
                                 <li>
-                                    Caso o destino exista e esteja passível de compra, o servidor realizará a operação de compra e responderá ao cliente com uma mensagem de confirmação, que por sua vez será validada de forma a informar ao usuário que a operação foi bem sucedida. Após isso, tanto o cliente quanto o servidor retornarão à etapa de menu principal.
+                                    Caso o destino exista e esteja passível de compra, o servidor realizará a operação de compra e responderá ao cliente com uma mensagem de confirmação ("ok"), que por sua vez será validada de forma a informar ao usuário que a operação foi bem sucedida. Após isso, tanto o cliente quanto o servidor retornarão à etapa de menu principal.
                                 </li>
                             </ol>
                         </ol>
@@ -179,22 +179,22 @@
                 Caso seja solicitada uma operação de consulta:
                 <ol type="a">
                     <li>
-                        O servidor inicia verificando se o referido cliente possui já registrada alguma compra. Caso não haja compras, será respondido ao cliente com uma mensagem indicando que não há passagens adquiridas. Entretanto, caso o cliente possua passagens registradas, o servidor enviará uma mensagem de confirmação de posse.
+                        O servidor inicia verificando se o referido cliente possui já registrada alguma compra. Caso não haja compras, será respondido ao cliente com uma mensagem que indique o ocorrido ("Sem passagens compradas"). Entretanto, caso o cliente possua passagens registradas, o servidor enviará uma mensagem de confirmação de posse ("ok").
                     </li>
                     <li>
-                        Tendo o cliente recebido a mensagem de confirmação, este estará esperando, por parte do servidor, a lista de passagens registradas para o ID do referido cliente. Com a lista de passagens recebida, é esperado que o cliente responda com um comando de retorno ou com o nome de uma das possíveis passagens.
+                        Tendo o cliente recebido a mensagem de confirmação, este estará esperando, por parte do servidor, novamente em JSON, uma lista de passagens registradas para o ID do referido cliente. Com a lista de passagens recebida, desserializada e devidamente tratada para exibição em terminal, é esperado que o cliente responda com um comando de retorno ou com o nome de uma das possíveis passagens.
                         <ol type="i">
                             <li>
-                                Caso o servidor receba comando de retorno, ambas as partes do sistema retornarão para a etapa de menu principal.
+                                Caso o servidor receba comando de retorno (exemplo: "1:3"), ambas as partes do sistema retornarão para a etapa de menu principal.
                             </li>
                             <li>
-                                Caso o servidor receba uma informação diferente do comando de retorno, este verificará se foi possível realizar a operação de cancelamento de passagem com o nome recebido.
+                                Caso o servidor receba uma informação diferente do comando de retorno (exemplo: "1:Maceio"), este verificará se foi possível realizar a operação de cancelamento de passagem com o nome recebido.
                                 <ol>
                                     <li>
-                                        Caso o nome recebido não exista na lista ou pertença a algum outro cliente, será enviada ao cliente uma mensagem indicando que aquela é uma rota inválida, e ambos retornarão à etapa de menu principal.
+                                        Caso o nome recebido não exista na lista ou pertença a algum outro cliente, será enviada ao cliente uma mensagem indicando o erro ("Rota inválida!"), e ambos retornarão à etapa de menu principal.
                                     </li>
                                     <li>
-                                        Caso o nome exista e pertença ao cliente em questão, a operação será realizada e o servidor responderá com uma mensagem de confirmação. Após isso, ambos irão retornar à etapa de menu principal.
+                                        Caso o nome exista e pertença ao cliente em questão, a operação será realizada e o servidor responderá com uma mensagem de confirmação ("ok"). Após isso, ambos irão retornar à etapa de menu principal.
                                     </li>
                                 </ol>
                             </li>
@@ -206,7 +206,7 @@
                 Caso seja solicitado o encerramento da conexão:
                 <ol type="a">
                     <li>
-                        O servidor inicia enviando uma mensagem de confirmação para encerramento de conexão e, em seu lado, encerra a conexão.
+                        O servidor inicia enviando uma mensagem de confirmação para encerramento de conexão ("exit_ok") e, em seu lado, encerra a conexão.
                     </li>
                     <li>
                         O cliente, por sua vez, tendo recebido e validado corretamente a mensagem de confirmação, exibirá em sua interface tal confirmação e encerrará a execução do programa. Caso, por algum motivo, receba uma mensagem diferente da confirmação, exibirá em sua interface uma mensagem de erro e continuará com a execução do serviço, retornando à etapa de menu principal.
