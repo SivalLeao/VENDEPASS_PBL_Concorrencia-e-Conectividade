@@ -214,7 +214,7 @@
                 </ol>
             </li>
             <li>
-                escreva aqui
+                Em caso de um comando inválido (exemplo: "1:5", "1:6", etc) o servidor enviará uma mensagem informando o problema ("Operação inválida!"), de forma que o cliente a receba e exiba em seu terminal para indicar ao usuário o ocorrido.
             </li>
         </ol>
         </li>
