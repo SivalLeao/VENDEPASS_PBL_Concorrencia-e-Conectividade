@@ -51,39 +51,46 @@ func cabecalho() {
 
 // Função para obter o endereço IP local
 func endereco_local() (string, string) {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
+	conn, err := net.Dial("udp", "8.8.8.8:80") // Estabelece uma conexão UDP com um servidor remoto
 	if err != nil {
-		fmt.Println("Erro ao obter endereco local:", err)
-		return "", ""
+		fmt.Println("Erro ao obter endereco local:", err) // Exibe um erro caso a conexão falhe
+		return "", ""                                     // Retorna um endereço vazio
 	}
-	defer conn.Close()
-
+	defer conn.Close() // Garante que a conexão será fechada ao final da função
+	// Obtém o endereço IP local a partir da conexão
 	endr := strings.Split(conn.LocalAddr().String(), ":")[0]
 
-	porta := "8088"
-
+	porta := "8088" // Define a porta a ser utilizada
+	// Retorna o endereço IP local e a porta
 	return endr, porta
 }
 
 func enviar(cliente net.Conn, dado []byte) error {
-	_, erro := cliente.Write(dado)
+	_, erro := cliente.Write(dado) // Envia os dados para o cliente
+	// Retorna um erro caso a escrita falhe
 	if erro != nil {
 		return erro
 	}
+	// Retorna nil se a operação for bem-sucedida
 	return nil
 }
 
 func receber(cliente net.Conn) ([]byte, error) {
+	// Cria um buffer de 1024 byte para armazenar os dados recebidos
 	buffer := make([]byte, 1024)
+	// Lê os dados recebidos do cliente
 	tam_bytes, erro := cliente.Read(buffer)
+	// Retorna um erro caso a leitura falhe
 	if erro != nil {
 		return nil, erro
 	}
+	// Retorna os dados recebidos e nil caso a operação seja bem-sucedida
 	return buffer[:tam_bytes], nil
 }
 
 // Função para enviar mensagens
 func enviar_mensagem(cliente net.Conn, mensagem string) {
+	// Envia a mensagem para o cliente
 	erro := enviar(cliente, []byte(mensagem))
 	if erro != nil {
 		fmt.Println("Erro ao enviar mensagem:", erro)
@@ -93,40 +100,38 @@ func enviar_mensagem(cliente net.Conn, mensagem string) {
 
 // Função para receber mensagens
 func receber_mensagem(cliente net.Conn) string {
+	// Chama a função receber para ler os dados da conexão
 	buffer, erro := receber(cliente)
+	// Retorna uma string vazia caso a leitura falhe
 	if erro != nil {
 		fmt.Println("Erro ao receber mensagem:", erro)
 		return ""
 	}
-
+	// Retorna os dados recebidos convertidos para string
 	return string(buffer)
 }
 
 // Função para serializar dados
 func serializar_dados[Tipo any](dados Tipo) ([]byte, error) {
+	// Converte os dados para JSON
 	jsonData, erro := json.Marshal(dados)
+	// Retorna um erro caso a conversão falhe
 	if erro != nil {
 		return nil, erro
 	}
+	// Retorna os dados serializados e nil caso a operação seja bem-sucedida
 	return jsonData, nil
-}
-
-// Função para desserializar dados
-func desserializar_dados[Tipo any](jsonData []byte) (Tipo, error) {
-	var dados Tipo
-	erro := json.Unmarshal(jsonData, &dados)
-	if erro != nil {
-		return dados, erro
-	}
-	return dados, nil
 }
 
 // Função para enviar dados de um tipo desconhecido (como um slice ou um map)
 func enviar_dados[Tipo any](cliente net.Conn, dados Tipo) error {
+	// Serializa os dados
 	jsonData, erro := serializar_dados(dados)
+	// Retorna um erro caso a serialização falhe
 	if erro != nil {
 		return erro
 	}
+	// Envia os dados serializados para o cliente
 	erro = enviar(cliente, jsonData)
 	if erro != nil {
 		return erro
@@ -134,26 +139,11 @@ func enviar_dados[Tipo any](cliente net.Conn, dados Tipo) error {
 	return nil
 }
 
-// Função para receber dados de um tipo desconhecido (como um slice ou um map)
-func receber_dados[Tipo any](cliente net.Conn) (Tipo, error) {
-	buffer, erro := receber(cliente)
-	var dados Tipo
-	if erro != nil {
-		return dados, erro
-	}
-	dados, erro = desserializar_dados[Tipo](buffer)
-	if erro != nil {
-		return dados, erro
-	}
-	return dados, nil
-}
-
 func exib_mens_receb(mens_receb string, ip string, porta string) {
 	//exibindo mensagem recebida
 	fmt.Println("Mensagem recebida!")
 	fmt.Println("Cliente:\033[34m", ip, "\033[0m:\033[34m", porta+"\033[0m")
 	fmt.Println("\n\033[33m", mens_receb+"\033[0m\n")
-	return
 }
 
 // Função para manipular a conexão com o cliente
