@@ -211,9 +211,13 @@
                     <li>
                         O cliente, por sua vez, tendo recebido e validado corretamente a mensagem de confirmação, exibirá em sua interface tal confirmação e encerrará a execução do programa. Caso, por algum motivo, receba uma mensagem diferente da confirmação, exibirá em sua interface uma mensagem de erro e continuará com a execução do serviço, retornando à etapa de menu principal.
                     </li>
-                <ol>
+                </ol>
+            </li>
+            <li>
+                escreva aqui
             </li>
         </ol>
+        </li>
     </p>
     <p>
         Para a realização da conexão com diversos clientes simultaneamente, foram utilizadas as chamadas goroutines, disponíveis nativamente na linguagem Go, que possibilitam a utilização de threads para execução de processos em paralelo. Com isso, é possível que mais de um cliente se conecte e comunique com o servidor simultaneamente e, graças às funcionalidades oferecidas pela tecnologia da linguagem, sem haver problemas de choques de comunicação ou problemas de concorrência. 
