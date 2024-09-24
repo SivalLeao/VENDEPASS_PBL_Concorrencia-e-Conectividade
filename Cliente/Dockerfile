@@ -1,5 +1,5 @@
 # Etapa de build: Utiliza uma imagem base do Go
-FROM golang:1.23-alpine
+FROM golang:1.21-alpine
 
 # Define o diretório de trabalho dentro do contêiner
 WORKDIR /app
