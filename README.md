@@ -21,7 +21,7 @@
 <div id="sumario">
     <ul>
         <li><a href="#arquitetura">Arquitetura do sistema</a></li>
-        <li><a href="#comunicacao">Comunicação</a></li>
+        <li><a href="#comunicacao">Protocolo de comunicação</a></li>
         <li><a href="#formatação">Formatação e tratamento de dados</a></li>
         <li><a href="#resultados">Resultados</a></li>
         <li><a href="#execucao">Execução do Projeto</a></li>
