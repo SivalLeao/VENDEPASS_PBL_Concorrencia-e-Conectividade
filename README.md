@@ -40,7 +40,7 @@
         </ul>
         <ul>
         </ul>
-    <a href="[(link)](https://github.com/SivalLeao/VENDEPASS_PBL_Concorrencia-e-Conectividade/blob/main/Fase%201%20-%20Servidor%20Centralizado/README.md)">README do Projeto 1</a>
+    <a href="https://github.com/SivalLeao/VENDEPASS_PBL_Concorrencia-e-Conectividade/blob/main/Fase%201%20-%20Servidor%20Centralizado/README.md">README do Projeto 1</a>
 </div>
 
 <div id="projeto2">
