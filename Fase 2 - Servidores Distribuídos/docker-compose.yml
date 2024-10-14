@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  servidor:
+    build:
+      context: .
+      dockerfile: Dockerfile.servidor
+    ports:
+      - "8080:8080"
+    networks:
+      - app-network
+
+  cliente:
+    build:
+      context: .
+      dockerfile: Dockerfile.cliente
+    depends_on:
+      - servidor
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,18 @@
+# Use a base image with Go 1.23.1 installed
+FROM golang:1.23.1-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the Go module files and download dependencies
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy the source code into the container
+COPY cliente/ .
+
+# Build the Go application
+RUN go build -o cliente ./cliente.go
+
+# Command to run the client
+CMD ["./cliente"]
