@@ -12,6 +12,10 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var serv_A string = "http://localhost:8080" // URL do servidor A
+var serv_B string = "http://localhost:8081" // URL do servidor B
+var serv_C string = "http://localhost:8082" // URL do servidor C
+
 // Estrutura de dados para o cliente
 // O cliente possui um ID, um nome e uma lista de rotas que pertencem a ele
 type Cliente struct{
@@ -60,8 +64,8 @@ func define_info() Infos_locais{
 						"Cachoeira":        0,
 				},
 				servidores: []string{
-					"http://localhost:8081",
-					"http://localhost:8082",
+					serv_B,
+					serv_C,
 				},
 				porta: ":8080",
 				clientes: make(map[int]Cliente),
@@ -77,8 +81,8 @@ func define_info() Infos_locais{
 						"Aracaju":          0,
 				},
 				servidores: []string{
-					"http://localhost:8080",
-					"http://localhost:8082",
+					serv_A,
+					serv_C,
 				},
 				porta: ":8081",
 				clientes: make(map[int]Cliente),
@@ -94,8 +98,8 @@ func define_info() Infos_locais{
 						"Manaus":           0,
 				},
 				servidores: []string{
-					"http://localhost:8080",
-					"http://localhost:8081",
+					serv_A,
+					serv_B,
 				},
 				porta: ":8082",
 				clientes: make(map[int]Cliente),
