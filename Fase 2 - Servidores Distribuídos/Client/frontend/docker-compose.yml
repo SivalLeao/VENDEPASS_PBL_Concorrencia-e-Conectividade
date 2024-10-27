@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  client:
+    build: 
+      context: ./
+    networks:
+      - iot-network
+    ports:
+      - "3000:3000"
+
+networks:
+  iot-network:
+    driver: bridge
