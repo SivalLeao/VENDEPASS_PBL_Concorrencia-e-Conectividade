@@ -12,9 +12,15 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+// Para uso local
 var serv_A string = "http://localhost:8080" // URL do servidor A
 var serv_B string = "http://localhost:8081" // URL do servidor B
 var serv_C string = "http://localhost:8082" // URL do servidor C
+
+// Para uso em laboratório
+// var serv_A string = "http://172.16.103.14:8080" // URL do servidor A
+// var serv_B string = "http://172.16.103.13:8080" // URL do servidor B
+// var serv_C string = "http://172.16.103.2:8080" // URL do servidor C
 
 // Estrutura de dados para o cliente
 // O cliente possui um ID, um nome e uma lista de rotas que pertencem a ele
@@ -85,6 +91,7 @@ func define_info() Infos_locais{
 					serv_C,
 				},
 				porta: ":8081",
+				// porta: "8080"
 				clientes: make(map[int]Cliente),
 			}
 			return serv_local
@@ -102,6 +109,7 @@ func define_info() Infos_locais{
 					serv_B,
 				},
 				porta: ":8082",
+				// porta: "8080"
 				clientes: make(map[int]Cliente),
 			}
 			return serv_local
