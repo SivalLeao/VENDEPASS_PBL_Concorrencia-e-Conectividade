@@ -9,7 +9,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy the source code into the container
-COPY servidor/ .
+COPY Server/ .
 
 # Build the Go application
 RUN go build -o servidor ./servidor.go
