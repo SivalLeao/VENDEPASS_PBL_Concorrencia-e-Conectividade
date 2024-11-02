@@ -102,7 +102,7 @@
                 Indicar com qual servidor se deseja conectar para interação, por meio de endereço IP e porta de conexão.
             </li>
             <li>
-                Realizar o cadastro de um novo cliente ou retornar para o sistema, informando seu nome de usuário.
+                Realizar o cadastro de um novo cliente ou reconectar ao sistema, informando seu nome de usuário.
             <li>
                 Solicitar a lista de localidades disponíveis.
             </li>
