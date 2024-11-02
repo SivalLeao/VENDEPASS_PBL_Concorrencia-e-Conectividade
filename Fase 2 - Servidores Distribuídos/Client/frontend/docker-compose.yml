@@ -7,7 +7,8 @@ services:
     networks:
       - iot-network
     ports:
-      - "3000:3000"
+      - "3000:3000"  # Porta mapeada para o cliente frontend
+    container_name: client_container # Nome do container para fácil identificação
 
 networks:
   iot-network:

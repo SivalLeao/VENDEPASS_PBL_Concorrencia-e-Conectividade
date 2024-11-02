@@ -4,7 +4,7 @@ import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
-import logo from '/image/aviao-de-papel.png';
+import logo from '/image/icon/aviao-de-papel.png';
 import { useAppThemeContext } from '../../contexts/ThemeContext';
 import { SideMenu } from '../SideMenu/SideMenu'; // Importe seu SideMenu aqui
 import PropTypes from 'prop-types';

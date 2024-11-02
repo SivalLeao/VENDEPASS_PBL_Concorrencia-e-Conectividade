@@ -5,7 +5,7 @@ import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import PropTypes from 'prop-types';
-import img_default from '/image/passagem-de-aviao.png'; // Importa a imagem
+import img_default from '/image/icon/passagem-de-aviao.png'; // Importa a imagem
 
 export const TicketsItem = ({ title, id, onCancel }) => {
   const handleCancelClick = () => {
