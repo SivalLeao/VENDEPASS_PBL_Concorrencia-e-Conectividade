@@ -59,5 +59,5 @@
         </ul>
         <ul>
         </ul>
-    <a href="(link)">README do Projeto 2 (Não disponíveis)</a>
+    <a href="https://github.com/SivalLeao/VENDEPASS_PBL_Concorrencia-e-Conectividade/blob/main/Fase%202%20-%20Servidores%20Distribuídos/README.md">README do Projeto 2</a>
 </div>
