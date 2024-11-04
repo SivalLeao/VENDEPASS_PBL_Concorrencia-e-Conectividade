@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 )
 
 // Para uso local
@@ -495,6 +496,15 @@ func define_metodo_patch(serv_local *Infos_locais, serv *gin.Engine){
 // Função para definir o servidor com os métodos POST, GET
 func define_servidor(serv_local *Infos_locais, id_cont *int) *gin.Engine{
 	r := gin.Default()
+
+	// Configuração do middleware CORS
+    r.Use(cors.New(cors.Config{
+        AllowOrigins:     []string{"http://localhost:8088"}, // Permitir a origem do frontend
+        AllowMethods:     []string{"GET", "POST", "PATCH", "OPTIONS"},
+        AllowHeaders:     []string{"Origin", "Content-Type", "X-Source"},
+        ExposeHeaders:    []string{"Content-Length"},
+        AllowCredentials: true,
+    }))
 
 	// Define os métodos GET
 	define_metodo_get(serv_local, r)

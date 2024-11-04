@@ -1,9 +1,13 @@
 import { CardItem } from '../CardItem/CardItem';
-// import { CardItem } from './CardItem';
 import PropTypes from 'prop-types';
 import { Grid2 } from '@mui/material';
 
 export const CardList = ({ items, onBuy }) => {
+  // Verifica se items é um array antes de chamar map
+  if (!Array.isArray(items)) {
+    return null; // Ou exiba uma mensagem de erro ou um componente de fallback
+  }
+
   return (
     <Grid2 container spacing={2}>
       {items.map((item) => (
