@@ -33,4 +33,28 @@ async function comparRotas(ENDPOINT, userData) {
   }
 }
 
-export { getRotas, create, comparRotas };
+// Patch cancelarRota
+async function cancelarRota(ENDPOINT, userData) {
+  try {
+    const response = await axios.patch(`${ENDPOINT}/cancelar_rota`, userData);
+    return response.data;
+  } catch (error) {
+    console.error('Error cancelling route:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+// Get rotas do cliente
+async function getRotasCliente(ENDPOINT, clientId) {
+  try {
+    const response = await axios.get(`${ENDPOINT}/rotas_cliente`, {
+      params: { id: clientId }
+    });
+    return response.data.rotas; // Retorna a lista de passagens do cliente
+  } catch (error) {
+    console.error('Error fetching client routes:', error);
+    throw error;
+  }
+}
+
+export { getRotas, create, comparRotas, cancelarRota, getRotasCliente };

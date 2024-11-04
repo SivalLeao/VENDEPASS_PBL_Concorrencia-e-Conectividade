@@ -6,10 +6,24 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import PropTypes from 'prop-types';
 import img_default from '/image/icon/passagem-de-aviao.png'; // Importa a imagem
+import { cancelarRota } from '../../func/userServices/UserServices'; // Importa a função cancelarRota
 
-export const TicketsItem = ({ title, id, onCancel }) => {
-  const handleCancelClick = () => {
-    onCancel(id); // Passa o id para a função de cancelamento
+export const TicketsItem = ({ title, id, onCancel, endpoint, clientId }) => {
+  const handleCancelClick = async () => {
+    try {
+      const response = await cancelarRota(endpoint, { Id: clientId, Rota: title });
+      if (response.status) {
+        console.log('Cancelamento realizado com sucesso:', response.status);
+        onCancel(id); // Passa o id para a função de cancelamento
+      } else if (response.error) {
+        console.error('Erro ao cancelar a rota:', response.error);
+      }
+    } catch (error) {
+      console.error('Erro ao fazer a requisição de cancelamento:', error.message);
+      if (error.response) {
+        console.error('Detalhes do erro:', error.response.data);
+      }
+    }
   };
 
   return (
@@ -36,4 +50,6 @@ TicketsItem.propTypes = {
   title: PropTypes.string.isRequired,
   id: PropTypes.string.isRequired,
   onCancel: PropTypes.func.isRequired,
+  endpoint: PropTypes.string.isRequired, // Adicione validação para o endpoint
+  clientId: PropTypes.number.isRequired, // Adicione validação para o ID do cliente
 };

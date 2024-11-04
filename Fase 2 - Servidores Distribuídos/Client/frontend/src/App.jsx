@@ -6,11 +6,7 @@ import { getRotas } from './func/userServices/UserServices';
 
 function App() {
   const [items, setItems] = useState([]);
-  const [tickets, setTickets] = useState([
-    { id: '5', title: 'Natal' },
-    { id: '6', title: 'Maceió' },
-    { id: '7', title: 'Fortaleza' },
-  ]);
+  const [tickets, setTickets] = useState([]);
   const [endpoint, setEndpoint] = useState('');
   const [clientId, setClientId] = useState(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -26,7 +22,8 @@ function App() {
   const handleBuy = (id) => {
     const item = items.find((item) => item.id === id);
     if (item) {
-      setTickets((prevTickets) => [...prevTickets, item]);
+      // Não adiciona a compra ao estado tickets
+      console.log(`Você comprou o item com id: ${id}`);
     }
   };
 
@@ -77,6 +74,9 @@ function App() {
             credentials={credentials}
             setEndpoint={setEndpoint}
             setClientId={setClientId}
+            clientId={clientId}
+            endpoint={endpoint}
+            setTickets={setTickets}
           />
           <Box marginTop={2} marginLeft={1}>
             <CardList items={items} onBuy={handleBuy} endpoint={endpoint} clientId={clientId} />

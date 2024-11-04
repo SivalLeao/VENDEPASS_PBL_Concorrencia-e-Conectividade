@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { TicketsList } from '../TicketsList/TicketsList'; // Ajuste o caminho conforme necessário
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 
-export const SideMenu = ({ open, onClose, purchasedItems, onCancel }) => {
+export const SideMenu = ({ open, onClose, purchasedItems, onCancel, endpoint, clientId }) => {
   const theme = useTheme(); // Obtém o tema para usar theme.spacing()
 
   return (
@@ -41,6 +41,8 @@ export const SideMenu = ({ open, onClose, purchasedItems, onCancel }) => {
         <TicketsList 
           items={purchasedItems} 
           onCancel={onCancel} 
+          endpoint={endpoint} // Passa o endpoint
+          clientId={clientId} // Passa o ID do cliente
         /> {/* Usa TicketsList */}
       </Box>
     </Drawer>
@@ -58,4 +60,6 @@ SideMenu.propTypes = {
     })
   ).isRequired,
   onCancel: PropTypes.func.isRequired,
+  endpoint: PropTypes.string.isRequired, // Adicione validação para o endpoint
+  clientId: PropTypes.number.isRequired, // Adicione validação para o ID do cliente
 };

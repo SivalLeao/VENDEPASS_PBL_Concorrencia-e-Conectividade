@@ -9,8 +9,9 @@ import { useAppThemeContext } from '../../contexts/ThemeContext';
 import { SideMenu } from '../SideMenu/SideMenu';
 import PropTypes from 'prop-types';
 import axios from 'axios';
+import { getRotasCliente } from '../../func/userServices/UserServices'; // Importa a função getRotasCliente
 
-export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setClientId }) => {
+export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setClientId, clientId, endpoint, setTickets }) => {
     const theme = useTheme();
     const { toggleTheme } = useAppThemeContext();
 
@@ -21,8 +22,22 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
 
     const menuRef = useRef(null);
 
-    const handleMenuToggle = () => {
+    const handleMenuToggle = async () => {
         setMenuOpen((prev) => !prev);
+        if (!menuOpen && clientId && endpoint) {
+            try {
+                const rotasCliente = await getRotasCliente(endpoint, clientId);
+                if (Array.isArray(rotasCliente)) {
+                    setTickets(rotasCliente.map((rota, index) => ({ id: index.toString(), title: rota })));
+                } else {
+                    console.error('A resposta do servidor não é um array:', rotasCliente);
+                    setErrorAlert(true);
+                }
+            } catch (error) {
+                console.error('Erro ao buscar rotas do cliente:', error);
+                setErrorAlert(true);
+            }
+        }
     };
 
     const handleMenuClose = () => {
@@ -186,5 +201,8 @@ NavBar.propTypes = {
         password: PropTypes.string.isRequired,
     }).isRequired,
     setEndpoint: PropTypes.func.isRequired,
-    setClientId: PropTypes.func.isRequired, // Adiciona a validação para setClientId
+    setClientId: PropTypes.func.isRequired,
+    clientId: PropTypes.number,
+    endpoint: PropTypes.string,
+    setTickets: PropTypes.func.isRequired,
 };
