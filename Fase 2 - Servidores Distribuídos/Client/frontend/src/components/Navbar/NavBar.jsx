@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Box, IconButton, InputBase, Paper, useTheme, ClickAwayListener } from '@mui/material';
+import { Box, IconButton, InputBase, Paper, useTheme, ClickAwayListener, Typography, Snackbar } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
@@ -8,14 +8,16 @@ import logo from '/image/icon/aviao-de-papel.png';
 import { useAppThemeContext } from '../../contexts/ThemeContext';
 import { SideMenu } from '../SideMenu/SideMenu';
 import PropTypes from 'prop-types';
-import { Cadastrar } from '../../func/Cadastrar/Cadastrar';
+import axios from 'axios';
 
-export const NavBar = ({ tickets, handleCancel, credentials }) => {
+export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setClientId }) => {
     const theme = useTheme();
     const { toggleTheme } = useAppThemeContext();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchUrl, setSearchUrl] = useState('');
+    const [connectionStatus, setConnectionStatus] = useState('Informe a URL do servidor');
+    const [errorAlert, setErrorAlert] = useState(false); // Estado para o alerta de erro
 
     const menuRef = useRef(null);
 
@@ -29,14 +31,30 @@ export const NavBar = ({ tickets, handleCancel, credentials }) => {
 
     const handleSearch = async () => {
         if (searchUrl) {
-            const id = await Cadastrar(searchUrl, credentials);
-            if (id !== -1) {
-                console.log(`Cadastro realizado com ID: ${id}`);
-            } else {
-                console.error('Erro no cadastro.');
+            setSearchUrl(''); // Limpa o campo de entrada imediatamente
+            try {
+                const nomeCompleto = `${credentials.name}${credentials.password}`;
+                const response = await axios.post(`${searchUrl}/cadastro`, { Nome: nomeCompleto }, {
+                    headers: { 'Content-Type': 'application/json' },
+                });
+                if (response.data && response.data.id) {
+                    console.log(`Cadastro realizado com ID: ${response.data.id}`);
+                    setEndpoint(searchUrl);
+                    setClientId(response.data.id); // Armazena o ID do cliente
+                    setConnectionStatus(`Conectado no ${searchUrl}`);
+                } else {
+                    console.error('Erro no cadastro.');
+                    setConnectionStatus('Não foi possível se conectar ao servidor');
+                    setErrorAlert(true); // Exibe alerta de erro
+                }
+            } catch (error) {
+                console.error('Erro ao fazer a requisição de cadastro:', error);
+                setConnectionStatus('Não foi possível se conectar ao servidor');
+                setErrorAlert(true); // Exibe alerta de erro
             }
         } else {
             console.warn('URL de busca não pode estar vazia.');
+            setConnectionStatus('URL de busca não pode estar vazia');
         }
     };
 
@@ -76,7 +94,7 @@ export const NavBar = ({ tickets, handleCancel, credentials }) => {
                 >
                     <InputBase
                         sx={{ ml: theme.spacing(1), flex: 1 }}
-                        placeholder="Buscar Rotas de Voos"
+                        placeholder={connectionStatus}
                         inputProps={{ 'aria-label': 'buscar rotas de voos' }}
                         value={searchUrl}
                         onChange={(e) => setSearchUrl(e.target.value)}
@@ -141,6 +159,14 @@ export const NavBar = ({ tickets, handleCancel, credentials }) => {
                     purchasedItems={tickets} 
                     onCancel={handleCancel} 
                 />
+
+                {/* Alerta de erro */}
+                <Snackbar
+                    open={errorAlert}
+                    autoHideDuration={4000}
+                    onClose={() => setErrorAlert(false)}
+                    message="Não foi possível se conectar ao servidor"
+                />
             </Box>
         </ClickAwayListener>
     );
@@ -159,4 +185,6 @@ NavBar.propTypes = {
         name: PropTypes.string.isRequired,
         password: PropTypes.string.isRequired,
     }).isRequired,
+    setEndpoint: PropTypes.func.isRequired,
+    setClientId: PropTypes.func.isRequired, // Adiciona a validação para setClientId
 };
