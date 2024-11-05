@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"strconv"
 
-	"github.com/gin-gonic/gin"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // Para uso local
@@ -48,10 +48,10 @@ type Client_req struct{
 // Informações de servidor locais
 // As rotas pertencentes a esse, os servidores com que vai se comunicar e sua porta de comunicação
 type Infos_locais struct {
-	rotas map[string]int // Mapa de rotas locais
+	rotas map[string]int // Mapa de rotas locais (Ex.: {"Nome da rota": ID do cliente})
 	servidores []string // Slice de servidores com que vai se comunicar
 	porta string // Porta de comunicação
-	clientes map[int]Cliente
+	clientes map[int]Cliente // Mapa de clientes por ID
 }
 
 // Função para definir as informações locais do servidor a partir de seleção do usuário
@@ -195,8 +195,107 @@ func cancelar_rota(serv_local *Infos_locais, cliente_req Client_req) {
 	}
 }
 
+// Função para solicitar as informações de outros servidores e atualizar as próprias
+func atualiza_infos(serv_local *Infos_locais, id_cont *int) {
+    for _, server := range serv_local.servidores {
+        req, err := http.NewRequest("GET", server+"/infos", nil) // Cria uma requisição GET para o servidor
+        if err != nil {
+            fmt.Printf("Failed to create request to server %s: %v\n", server, err)
+            continue
+        }
+
+        client := &http.Client{} // Cria um cliente HTTP
+        resp, err := client.Do(req) // Envia a requisição
+        if err != nil {
+            fmt.Printf("Failed to fetch infos from server %s: %v\n", server, err)
+            continue
+        }
+        defer resp.Body.Close()
+
+        var infos_externas map[string]interface{} // Cria um mapa para armazenar as informações recebidas
+        if err := json.NewDecoder(resp.Body).Decode(&infos_externas); err != nil { // Decodifica o JSON recebido para o mapa de informações externas
+            fmt.Printf("Failed to decode infos from server %s: %v\n", server, err)
+            continue
+        }
+
+        fmt.Printf("Received infos from server %s: %v\n", server, infos_externas)
+
+        if id, ok := infos_externas["id"].(float64); ok {
+            *id_cont = int(id) // Atualiza o contador de ID
+        } else {
+            fmt.Printf("Failed to convert id from server %s\n", server)
+            continue
+        }
+
+        // Adiciona os clientes externos ao mapa de clientes
+        clientes_externos, ok := infos_externas["clientes"].(map[string]interface{})
+        if !ok {
+            fmt.Printf("Failed to convert clientes from server %s\n", server)
+            continue
+        }
+
+        for k, v := range clientes_externos { // k = int, v = Cliente ({id, nome, rotas})
+            cliente, ok := v.(map[string]interface{})
+            if !ok {
+                fmt.Printf("Failed to convert cliente from server %s\n", server)
+                continue
+            }
+
+            id, err := strconv.Atoi(k)
+            if err != nil {
+                fmt.Printf("Failed to convert cliente id from server %s: %v\n", server, err)
+                continue
+            }
+
+            rotas_interface, ok := cliente["rotas"]
+            if !ok {
+                fmt.Printf("Field 'rotas' not found for cliente %d from server %s\n", id, server)
+                continue
+            }
+
+            rotas_slice, ok := rotas_interface.([]interface{})
+            if !ok {
+                fmt.Printf("Failed to convert rotas from server %s for cliente %d\n", server, id)
+                continue
+            }
+
+            rotas := make([]string, len(rotas_slice))
+            for i, rota := range rotas_slice {
+                if valor, ok := rota.(string); ok {
+                    rotas[i] = valor
+                } else {
+                    fmt.Printf("Erro ao converter o valor da rota: %v\n", rota)
+                }
+            }
+
+            nome, ok := cliente["nome"].(string)
+            if !ok {
+                fmt.Printf("Failed to convert nome from server %s for cliente %d\n", server, id)
+                continue
+            }
+
+            serv_local.clientes[id] = Cliente{
+                id:    id,
+                nome:  nome,
+                rotas: rotas,
+            }
+        }
+    }
+
+	// Atualiza o status das rotas locais com base nas informações recebidas
+	for id_cli, cliente := range serv_local.clientes {
+		for _, rota_cli := range cliente.rotas {
+			for rota_serv := range serv_local.rotas {
+				if rota_cli == rota_serv {
+					serv_local.rotas[rota_serv] = id_cli
+				}
+			}
+		}
+	}
+}
+
 // Função para definir os métodos GET do servidor
-func define_metodo_get(serv_local *Infos_locais, serv *gin.Engine){
+func define_metodo_get(serv_local *Infos_locais, serv *gin.Engine, id_cont *int){
 	serv.GET("/ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"message": "pong",
@@ -251,6 +350,25 @@ func define_metodo_get(serv_local *Infos_locais, serv *gin.Engine){
 		// Responde com as rotas do cliente
 		c.JSON(http.StatusOK, gin.H{"rotas": cliente.rotas})
 	})
+
+    // Método GET para retornar as informações sobre clientes e rotas
+    serv.GET("/infos", func(c *gin.Context) {
+        clientes := make(map[int]map[string]interface{})
+        for id, cliente := range serv_local.clientes {
+            clientes[id] = map[string]interface{}{
+                "id":    cliente.id,
+                "nome":  cliente.nome,
+                "rotas": cliente.rotas,
+            }
+        }
+
+        infos := map[string]interface{}{
+            "id":       *id_cont,
+            "clientes": clientes,
+        }
+
+        c.JSON(http.StatusOK, infos)
+    })
 }
 
 // Função para definir os métodos POST do servidor
@@ -507,7 +625,7 @@ func define_servidor(serv_local *Infos_locais, id_cont *int) *gin.Engine{
     }))
 
 	// Define os métodos GET
-	define_metodo_get(serv_local, r)
+	define_metodo_get(serv_local, r, id_cont)
 
 	// Define os métodos POST
 	define_metodo_post(serv_local, r, id_cont)
@@ -521,6 +639,7 @@ func define_servidor(serv_local *Infos_locais, id_cont *int) *gin.Engine{
 func main() {
 	var int_cont int = 1
 	serv_local := define_info() // Define as informações locais do servidor
+	atualiza_infos(&serv_local, &int_cont) // Atualiza as informações locais com as informações dos outros servidores
 	servidor := define_servidor(&serv_local, &int_cont) // Define os métodos POST, GET e o servidor
 	servidor.Run(serv_local.porta) // Executa o servidor
 }
