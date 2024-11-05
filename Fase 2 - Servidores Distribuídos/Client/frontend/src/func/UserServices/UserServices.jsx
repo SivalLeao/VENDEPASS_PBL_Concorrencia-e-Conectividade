@@ -1,5 +1,6 @@
 import axios from "axios";
 
+
 // Get rotas
 async function getRotas(ENDPOINT) {
   try {

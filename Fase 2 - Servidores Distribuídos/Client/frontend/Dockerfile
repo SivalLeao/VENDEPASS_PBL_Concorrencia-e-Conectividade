@@ -28,7 +28,7 @@ COPY --from=build /app/dist /app/dist
 COPY ./public /app/image
 
 # Expõe a porta que o servidor frontend vai usar
-EXPOSE 3000
+EXPOSE 8088
 
 # Comando para iniciar a aplicação
 CMD [ "npm", "run", "serve" ]

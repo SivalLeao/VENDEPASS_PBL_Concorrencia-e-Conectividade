@@ -4,11 +4,11 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --port 8088",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "serve": "serve -s dist"
+    "preview": "vite preview --port 8088",
+    "serve": "serve -s dist -l 8088"
   },
   "dependencies": {
     "@emotion/react": "^11.13.3",
