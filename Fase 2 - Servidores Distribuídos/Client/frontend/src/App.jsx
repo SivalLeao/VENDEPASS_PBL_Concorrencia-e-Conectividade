@@ -1,5 +1,5 @@
 import { Box, Dialog } from '@mui/material';
-import { NavBar, CadastroLogin, CardList } from './components';
+import { NavBar, CadastroLogin, CardList, SideMenu } from './components';
 import { AppThemeProvider } from './contexts/ThemeContext';
 import { useState, useEffect, useRef } from 'react';
 import { getRotas } from './func/userServices/UserServices';
@@ -82,6 +82,15 @@ function App() {
             <CardList items={items} onBuy={handleBuy} endpoint={endpoint} clientId={clientId} />
           </Box>
           
+          <SideMenu
+            open={isMenuOpen}
+            onClose={() => setIsMenuOpen(false)}
+            purchasedItems={tickets}
+            onCancel={handleCancel}
+            endpoint={endpoint}
+            clientId={clientId}
+          />
+
           <Dialog open={showLoginModal} onClose={handleCloseLoginModal} fullWidth>
             <CadastroLogin open={showLoginModal} onClose={handleCloseLoginModal} onLogin={handleLogin} />
           </Dialog>

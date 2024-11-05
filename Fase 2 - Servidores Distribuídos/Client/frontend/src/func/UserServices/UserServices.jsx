@@ -35,6 +35,8 @@ async function comparRotas(ENDPOINT, userData) {
 
 // Patch cancelarRota
 async function cancelarRota(ENDPOINT, userData) {
+  console.log('Cancelando rota pp:', userData);
+  console.log('Cancelando rota endpoint:', ENDPOINT);
   try {
     const response = await axios.patch(`${ENDPOINT}/cancelar_rota`, userData);
     return response.data;

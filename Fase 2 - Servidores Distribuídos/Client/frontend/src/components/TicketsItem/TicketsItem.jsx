@@ -27,6 +27,7 @@ export const TicketsItem = ({ title, id, onCancel, endpoint, clientId }) => {
   };
 
   return (
+    console.log('TI endpoint:', endpoint),
     <Card sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
       <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
         <Typography variant="body2" sx={{ marginBottom: 1 }}>
@@ -48,7 +49,7 @@ export const TicketsItem = ({ title, id, onCancel, endpoint, clientId }) => {
 // Validação de props
 TicketsItem.propTypes = {
   title: PropTypes.string.isRequired,
-  id: PropTypes.string.isRequired,
+  id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,
   onCancel: PropTypes.func.isRequired,
   endpoint: PropTypes.string.isRequired, // Adicione validação para o endpoint
   clientId: PropTypes.number.isRequired, // Adicione validação para o ID do cliente

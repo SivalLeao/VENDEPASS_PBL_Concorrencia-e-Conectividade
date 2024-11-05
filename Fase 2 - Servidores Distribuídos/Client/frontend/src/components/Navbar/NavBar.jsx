@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Box, IconButton, InputBase, Paper, useTheme, ClickAwayListener, Typography, Snackbar } from '@mui/material';
+import { Box, IconButton, InputBase, Paper, useTheme, ClickAwayListener, Snackbar } from '@mui/material';
 import Divider from '@mui/material/Divider';
 import SearchIcon from '@mui/icons-material/Search';
 import AirplaneTicketIcon from '@mui/icons-material/AirplaneTicket';
@@ -9,16 +9,17 @@ import { useAppThemeContext } from '../../contexts/ThemeContext';
 import { SideMenu } from '../SideMenu/SideMenu';
 import PropTypes from 'prop-types';
 import axios from 'axios';
-import { getRotasCliente } from '../../func/userServices/UserServices'; // Importa a função getRotasCliente
+import { getRotasCliente } from '../../func/userServices/UserServices';
 
 export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setClientId, clientId, endpoint, setTickets }) => {
+    // Verifica o valor de clientId
     const theme = useTheme();
     const { toggleTheme } = useAppThemeContext();
 
     const [menuOpen, setMenuOpen] = useState(false);
     const [searchUrl, setSearchUrl] = useState('');
     const [connectionStatus, setConnectionStatus] = useState('Informe a URL do servidor');
-    const [errorAlert, setErrorAlert] = useState(false); // Estado para o alerta de erro
+    const [errorAlert, setErrorAlert] = useState(false);
 
     const menuRef = useRef(null);
 
@@ -27,15 +28,9 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
         if (!menuOpen && clientId && endpoint) {
             try {
                 const rotasCliente = await getRotasCliente(endpoint, clientId);
-                if (Array.isArray(rotasCliente)) {
-                    setTickets(rotasCliente.map((rota, index) => ({ id: index.toString(), title: rota })));
-                } else {
-                    console.error('A resposta do servidor não é um array:', rotasCliente);
-                    setErrorAlert(true);
-                }
+                setTickets(rotasCliente.map((rota, index) => ({ id: index.toString(), title: rota })));
             } catch (error) {
                 console.error('Erro ao buscar rotas do cliente:', error);
-                setErrorAlert(true);
             }
         }
     };
@@ -46,7 +41,7 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
 
     const handleSearch = async () => {
         if (searchUrl) {
-            setSearchUrl(''); // Limpa o campo de entrada imediatamente
+            setSearchUrl('');
             try {
                 const nomeCompleto = `${credentials.name}${credentials.password}`;
                 const response = await axios.post(`${searchUrl}/cadastro`, { Nome: nomeCompleto }, {
@@ -55,17 +50,17 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
                 if (response.data && response.data.id) {
                     console.log(`Cadastro realizado com ID: ${response.data.id}`);
                     setEndpoint(searchUrl);
-                    setClientId(response.data.id); // Armazena o ID do cliente
+                    setClientId(response.data.id);
                     setConnectionStatus(`Conectado no ${searchUrl}`);
                 } else {
                     console.error('Erro no cadastro.');
                     setConnectionStatus('Não foi possível se conectar ao servidor');
-                    setErrorAlert(true); // Exibe alerta de erro
+                    setErrorAlert(true);
                 }
             } catch (error) {
                 console.error('Erro ao fazer a requisição de cadastro:', error);
                 setConnectionStatus('Não foi possível se conectar ao servidor');
-                setErrorAlert(true); // Exibe alerta de erro
+                setErrorAlert(true);
             }
         } else {
             console.warn('URL de busca não pode estar vazia.');
@@ -86,13 +81,11 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
                 justifyContent="space-between"
                 ref={menuRef}
             >
-                {/* Logo */}
                 <Box display='flex' alignItems='center' gap={1}>
                     <img src={logo} alt="Logo Passcom" width="35" height="35" />
                     <span style={{ fontFamily: 'Roboto, sans-serif', fontSize: '2rem', fontWeight: 700 }}>PASSCOM</span>
                 </Box>
 
-                {/* Barra de pesquisa */}
                 <Paper
                     component="form"
                     sx={{
@@ -130,7 +123,6 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
                     <Divider sx={{ height: theme.spacing(4), m: theme.spacing(0.5) }} orientation="vertical" />
                 </Paper>
 
-                {/* Ícones de Minhas compras / Tema */}
                 <Box display="flex" gap={1} alignItems="center">
                     <IconButton
                         aria-label="Minha Passagens"
@@ -167,15 +159,15 @@ export const NavBar = ({ tickets, handleCancel, credentials, setEndpoint, setCli
                     </IconButton>
                 </Box>
 
-                {/* Menu Lateral */}
                 <SideMenu 
                     open={menuOpen} 
                     onClose={handleMenuClose} 
                     purchasedItems={tickets} 
                     onCancel={handleCancel} 
+                    endpoint={endpoint} // Passando o endpoint para SideMenu
+                    clientId={clientId} // Passando o clientId para SideMenu
                 />
 
-                {/* Alerta de erro */}
                 <Snackbar
                     open={errorAlert}
                     autoHideDuration={4000}

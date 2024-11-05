@@ -1,24 +1,27 @@
 import { Box, Drawer, Typography, useTheme } from "@mui/material";
 import PropTypes from "prop-types";
-import { TicketsList } from '../TicketsList/TicketsList'; // Ajuste o caminho conforme necessário
+import { TicketsList } from '../TicketsList/TicketsList'; 
 import LocalActivityIcon from '@mui/icons-material/LocalActivity';
 
 export const SideMenu = ({ open, onClose, purchasedItems, onCancel, endpoint, clientId }) => {
-  const theme = useTheme(); // Obtém o tema para usar theme.spacing()
+  const theme = useTheme();
+
+  console.log("Client ID in SideMenu:", clientId); // Verifica o valor de clientId
 
   return (
+    console.log('SM endpoint:', endpoint),
     <Drawer 
       anchor="right" 
       open={open} 
       onClose={onClose} 
-      sx={{ width: theme.spacing(44), flexShrink: 0 }} // Ajusta a largura usando theme.spacing
+      sx={{ width: theme.spacing(44), flexShrink: 0 }}
       PaperProps={{
-        sx: { width: theme.spacing(44) } // Define também a largura do conteúdo do Drawer
+        sx: { width: theme.spacing(44) }
       }}
     >
       <Box 
         sx={{   
-          width: '100%', // Mantém o Box com a largura total do Drawer
+          width: '100%', 
           height: '100%', 
           display: 'flex', 
           flexDirection: 'column',
@@ -27,12 +30,12 @@ export const SideMenu = ({ open, onClose, purchasedItems, onCancel, endpoint, cl
         <Box 
           sx={{
             display: 'flex',
-            alignItems: 'center', // Alinha o ícone e o texto verticalmente
+            alignItems: 'center',
             padding: theme.spacing(2),
-            position: 'sticky', // Define o título como fixo
-            top: 0, // Posiciona no topo
-            backgroundColor: theme.palette.background.paper, // Mantém o fundo consistente
-            zIndex: 1, // Garante que o título fique acima dos itens roláveis
+            position: 'sticky',
+            top: 0,
+            backgroundColor: theme.palette.background.paper,
+            zIndex: 1,
           }}
         >
           <LocalActivityIcon sx={{ fontSize: theme.spacing(4), marginRight: theme.spacing(1) }} />
@@ -41,9 +44,9 @@ export const SideMenu = ({ open, onClose, purchasedItems, onCancel, endpoint, cl
         <TicketsList 
           items={purchasedItems} 
           onCancel={onCancel} 
-          endpoint={endpoint} // Passa o endpoint
-          clientId={clientId} // Passa o ID do cliente
-        /> {/* Usa TicketsList */}
+          endpoint={endpoint} 
+          clientId={clientId} // Passa o clientId diretamente
+        />
       </Box>
     </Drawer>
   );
@@ -60,6 +63,6 @@ SideMenu.propTypes = {
     })
   ).isRequired,
   onCancel: PropTypes.func.isRequired,
-  endpoint: PropTypes.string.isRequired, // Adicione validação para o endpoint
+  endpoint: PropTypes.string.isRequired,
   clientId: PropTypes.number.isRequired, // Adicione validação para o ID do cliente
 };

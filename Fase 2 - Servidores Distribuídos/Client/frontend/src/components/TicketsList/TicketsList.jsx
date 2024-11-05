@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import { Box, Typography } from "@mui/material";
 
 export const TicketsList = ({ items, onCancel, endpoint, clientId }) => {
+  console.log('TicketsList.jsx - clientId:', clientId);
+
   return (
+    console.log('TL endpoint:', endpoint),
     <Box display="flex" flexDirection="column" gap={2}>
       {items.length > 0 ? (
         items.map((item) => (
