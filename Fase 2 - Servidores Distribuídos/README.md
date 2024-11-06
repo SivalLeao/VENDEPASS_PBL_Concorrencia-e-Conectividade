@@ -23,6 +23,7 @@
         <li><a href="#arquitetura">Arquitetura do sistema</a></li>
         <li><a href="#comunicacao">Protocolo de comunicação</a></li>
         <li><a href="#concorrência">Concorrência distribuída</a></li>
+        <li><a href="#frontend">Interface do usuário</a></li>
         <li><a href="#resultados">Resultados</a></li>
         <li><a href="#execucao">Execução do Projeto</a></li>
         <li><a href="#conclusao">Conclusão</a></li>
@@ -206,6 +207,104 @@
             Entretanto, fora as funcionalidades do Gin, não há, neste projeto, qualquer outro método para o tratamento de concorrência distribuída para casos de acessos a funções críticas entre os servidores. O sistema foi projetado para que cada servidor possua uma cópia dos registros de clientes e passagens, e que cada servidor possa atualizar os registros dos outros servidores quando necessário.
         </p>
     </div>
+</div>
+
+<div id="frontend">
+    <h2>Interface do usuário</h2>
+    <div align="justify">
+        <p>
+            Para a criação do frontend, foi utilizado <a href="https://react.dev">React</a> com JavaScript para construir a interface do usuário, enquanto as requisições HTTP foram implementadas com a biblioteca <a href="https://www.npmjs.com/package/axios"> Axios</a>, permitindo uma comunicação eficiente com o backend. Além disso, foi adotado o <a href="https://mui.com/material-ui/">Material UI</a> para estilizar componentes e manter uma aparência consistente e moderna, facilitando o desenvolvimento e garantindo uma experiência de usuário responsiva e visualmente agradável.
+        </p>
+        <h3>Terminal</h3>
+        <h4>Executar</h4>
+        <p>
+            Para executar o código do frontend via Docker, siga os passos abaixo:
+        </p>
+        <ol>
+        <li>Navegue até o diretório da aplicação no seu terminal.</li>
+        <li>Digite o comando abaixo no terminal para criar a imagem Docker e executar a aplicação automaticamente:
+            <pre><code>docker compose up --build</code></pre>
+        </li>
+        <li>Quando a execução estiver concluída, o terminal exibirá a URL onde a aplicação está disponível:
+            <code>http://localhost:8088</code>
+        </li>
+        <li>Para abrir a aplicação diretamente no navegador, pressione a tecla <code>Ctrl</code> enquanto clica com o botão direito do mouse sobre o link no terminal.</li>
+    </ol>
+    </div>
+    <h3>Interface</h3>
+    <h4>Tela de Cadastro/Login</h4>
+    <p>
+    Ao abrir a aplicação no navegador, o usuário verá uma solicitação de cadastro/login.
+    </p>
+    <h5>
+        Funcionamento:
+    </h5>
+    <ul>
+        <li>
+            Se os dados do usuário não estiverem registrados no servidor, um novo cadastro será realizado, e o usuário receberá um identificador único (ID).
+            </li>
+        <li>
+            Se os dados do usuário já existirem no servidor, o sistema reconhecerá o usuário e retornará seus dados, permitindo o acesso aos recursos da aplicação.
+            </li>
+    </ul>
+    <p align="center">
+      <img src="img/Tela-Cadastro_login.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tela Cadastro/Login</strong></p>
+    <h5>Conectando ao servidor</h5>
+    <p>Ao registrar-se, o servidor ainda não exibirá as rotas disponíveis. O usuário deve informar a URL do servidor desejado na barra de pesquisa e, em seguida, clicar no ícone de lupa para se conectar. Se o usuário pressionar a tecla Enter enquanto estiver na barra de pesquisa, o sistema retornará à página de cadastro/login. A URL deve seguir o formato padrão:</p>
+    <p align="center">
+      <img src="img/Exemplos-url.png" width = "400" />
+    </p>
+    <p align="center"><strong>Formato da URL</strong></p>
+    <p>
+    Na barra de pesquisa, o sistema informará se o usuário está conectado ao servidor ou se ocorreu algum erro. Em caso de erro, existem dois possíveis motivos: o servidor está off-line ou a URL está incorreta, mas o sistema não faz a distinção entre esses casos. Quando conectado ao servidor, pode haver um pequeno atraso na exibição das rotas. É importante observar que, mesmo estando conectado ao Servidor A, o usuário poderá receber dados dos Servidores B e C, desde que estes estejam ativos. Os cadastros realizados são independentes do servidor ao qual o usuário está conectado, pois todos os servidores armazenam os dados. Somente se os três servidores estiverem off-line simultaneamente, os dados serão perdidos.
+    </p>
+    <p align="center">
+      <img src="img/Tela-Principal.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tela Principal - Rotas disponíveis para compra</strong></p>
+    <h5>Comprar</h5>
+    <p>
+Para realizar uma compra, basta clicar no botão "COMPRAR" abaixo do nome da rota desejada. As rotas exibidas são as disponíveis para compra, com algumas exceções. A interface é atualizada periodicamente, portanto pode haver momentos em que a rota já foi comprada, mas a interface ainda não refletiu essa alteração. Nesse caso, uma mensagem indicará que a compra não foi possível, e a rota desaparecerá da lista em breve.</p>
+<p>Se a compra for bem-sucedida, a interface exibirá uma confirmação. Caso ocorra um erro na compra, ele pode ter duas causas: outro usuário comprou a rota antes da atualização da sua interface ou o servidor ao qual você está conectado ficou off-line. O sistema não diferencia entre esses motivos.</p>
+<p align="center">
+      <img src="img/Compra-realizada.png" width = "400" />
+    </p>
+    <p align="center"><strong>Compra realizada com sucesso!</strong></p>
+    <p align="center">
+      <img src="img/Erro-comprar.png" width = "400" />
+    </p>
+    <p align="center"><strong>Erro ao fazer requisição de comprar</strong></p>
+<p>Recomenda-se aguardar alguns segundos; se a rota não desaparecer, é provável que o servidor tenha ficado off-line. Nesse caso, conecte-se a outro servidor inserindo a URL na barra de pesquisa e clicando na lupa, sem necessidade de realizar novo login. A troca de servidor pode ser feita a qualquer momento.</p>
+<h5>Visualizar suas compras</h5>
+<p>Para visualizar suas compras, clique no botão "Passagens" na barra de navegação (NavBar). Isso abrirá um menu lateral exibindo todas as passagens adquiridas. Para cancelar uma passagem, basta clicar no botão "CANCELAR"; a passagem será removida da lista e reaparecerá na tela principal como disponível para venda.</p>
+<p align="center">
+      <img src="img/FuncaoNavBar.png" width = "400" />
+    </p>
+    <p align="center"><strong>Funçoes da NavBar</strong></p>
+    <p align="center">
+      <img src="img/MinhasCompras.png" width = "400" />
+    </p>
+    <p align="center"><strong>Passagens compradas</strong></p>
+    <h5>Outras funcionalidades</h5>
+    <p>O código é responsivo e se adapta a diferentes tamanhos de tela, permitindo sua execução em qualquer dispositivo. Ele também oferece a opção de troca de tema, com modos claro e escuro, proporcionando uma melhor experiência para diversos perfis de usuários.</p>
+    <p align="center">
+      <img src="img/TemaEscuro.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tema escuro - Tela principal</strong></p>
+    <p align="center">
+      <img src="img/TemaEscuro_MenuLateral.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tema escuro - Menu lateral</strong></p>
+    <p align="center">
+      <img src="img/TemaClaro.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tema claro - Tela principal</strong></p>
+    <p align="center">
+      <img src="img/TemaClaro_MenuLateral.png" width = "400" />
+    </p>
+    <p align="center"><strong>Tema claro - Menu lateral</strong></p>
 </div>
 
 <div id="resultados">
