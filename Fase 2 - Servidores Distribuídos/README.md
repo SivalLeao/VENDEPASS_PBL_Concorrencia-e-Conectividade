@@ -248,7 +248,7 @@
             </li>
     </ul>
     <p align="center">
-      <img src="img/Tela-Cadastro_login.png" width = "400" />
+      <img src="img/Tela-CadastroLogin.png" width = "400" />
     </p>
     <p align="center"><strong>Tela Cadastro/Login</strong></p>
     <h5>Conectando ao servidor</h5>
